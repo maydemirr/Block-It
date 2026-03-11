@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Block Blast",
-    "slug": "block-blast",
+    "name": "Block It",
+    "slug": "block-it",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,7 +13,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.blockblast"
+      "bundleIdentifier": "com.yourcompany.blockit"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +22,7 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "package": "com.yourcompany.blockblast"
+      "package": "com.yourcompany.blockit"
     },
     "web": {
       "favicon": "./assets/favicon.png"
