@@ -22,6 +22,7 @@ import {
 } from './utils/gameLogic';
 
 const STORAGE_KEY = '@block_blast_high_score';
+const SETTINGS_KEY = '@block_blast_settings';
 
 export default function App() {
   const [gameMode, setGameMode] = useState(null); // null, 'classic'
@@ -36,6 +37,8 @@ export default function App() {
   const [fadingCells, setFadingCells] = useState([]);
   const [combo, setCombo] = useState(0);
   const [showComboNotification, setShowComboNotification] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [hapticEnabled, setHapticEnabled] = useState(true);
   
   const gridRef = useRef(null);
   const gridPosition = useRef({ x: 0, y: 0 });
@@ -45,7 +48,38 @@ export default function App() {
   // High score yükle
   useEffect(() => {
     loadHighScore();
+    loadSettings();
   }, []);
+
+  const loadSettings = async () => {
+    try {
+      const saved = await AsyncStorage.getItem(SETTINGS_KEY);
+      if (saved !== null) {
+        const settings = JSON.parse(saved);
+        setSoundEnabled(settings.soundEnabled ?? true);
+        setHapticEnabled(settings.hapticEnabled ?? true);
+      }
+    } catch (error) {
+      console.error('Settings yüklenemedi:', error);
+    }
+  };
+
+  const saveSettings = async (sound, haptic) => {
+    try {
+      const settings = {
+        soundEnabled: sound,
+        hapticEnabled: haptic,
+      };
+      await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch (error) {
+      console.error('Settings kaydedilemedi:', error);
+    }
+  };
+
+  // Settings değiştiğinde kaydet
+  useEffect(() => {
+    saveSettings(soundEnabled, hapticEnabled);
+  }, [soundEnabled, hapticEnabled]);
 
   const loadHighScore = async () => {
     try {
@@ -86,7 +120,9 @@ export default function App() {
   const handleDragStart = (shape) => {
     draggedShapeRef.current = shape;
     console.log('Drag started with shape:', shape.id);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (hapticEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
   };
 
   // Sürükleme devam ediyor
@@ -157,7 +193,9 @@ export default function App() {
       draggedShapeRef.current = null;
       lastValidPosition.current = null;
       setHighlightCells([]);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      if (hapticEnabled) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
       return;
     }
 
@@ -224,14 +262,18 @@ export default function App() {
           const freshShapes = getRandomShapes();
           console.log('All shapes used, getting new shapes:', freshShapes.length);
           setShapes(freshShapes);
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          if (hapticEnabled) {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          }
         } else {
           console.log('Setting remaining shapes');
           setShapes(newShapes);
         }
         
         // Haptic feedback
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        if (hapticEnabled) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
         
         // Oyun bitti mi kontrol et
         setTimeout(() => {
@@ -265,14 +307,18 @@ export default function App() {
         const freshShapes = getRandomShapes();
         console.log('All shapes used, getting new shapes:', freshShapes.length);
         setShapes(freshShapes);
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        if (hapticEnabled) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
       } else {
         console.log('Setting remaining shapes');
         setShapes(newShapes);
       }
       
       // Haptic feedback
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      if (hapticEnabled) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      }
       
       // Oyun bitti mi kontrol et
       setTimeout(() => {
@@ -292,7 +338,9 @@ export default function App() {
   const checkGameOver = (currentGrid, currentShapes) => {
     if (!canPlaceAnyShape(currentGrid, currentShapes)) {
       setGameOver(true);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      if (hapticEnabled) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
     }
   };
 
@@ -304,7 +352,9 @@ export default function App() {
     setHighlightCells([]);
     draggedShapeRef.current = null;
     lastValidPosition.current = null;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (hapticEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
   };
 
   const handleStartClassic = () => {
@@ -328,6 +378,10 @@ export default function App() {
         onStartClassic={handleStartClassic}
         onResume={handleResume}
         hasActiveGame={gameMode && isPaused}
+        soundEnabled={soundEnabled}
+        setSoundEnabled={setSoundEnabled}
+        hapticEnabled={hapticEnabled}
+        setHapticEnabled={setHapticEnabled}
       />
     );
   }

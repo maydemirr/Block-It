@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { COLORS } from '../constants/colors';
+import Settings from './Settings';
 
-const MainMenu = ({ onStartClassic, onResume, hasActiveGame }) => {
+const MainMenu = ({ onStartClassic, onResume, hasActiveGame, soundEnabled, setSoundEnabled, hapticEnabled, setHapticEnabled }) => {
+  const [showSettings, setShowSettings] = useState(false);
+
   return (
     <View style={styles.container}>
+      <TouchableOpacity 
+        style={styles.settingsButton} 
+        onPress={() => setShowSettings(true)}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.settingsIcon}>⚙️</Text>
+      </TouchableOpacity>
+
       <View style={styles.content}>
         <Text style={styles.title}>Block It</Text>
         <Text style={styles.subtitle}>Puzzle Oyunu</Text>
@@ -31,6 +42,15 @@ const MainMenu = ({ onStartClassic, onResume, hasActiveGame }) => {
           </TouchableOpacity>
         </View>
       </View>
+
+      <Settings
+        visible={showSettings}
+        onClose={() => setShowSettings(false)}
+        soundEnabled={soundEnabled}
+        setSoundEnabled={setSoundEnabled}
+        hapticEnabled={hapticEnabled}
+        setHapticEnabled={setHapticEnabled}
+      />
     </View>
   );
 };
@@ -41,6 +61,25 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  settingsButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    backgroundColor: COLORS.gridBackground,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  settingsIcon: {
+    fontSize: 28,
   },
   content: {
     alignItems: 'center',
