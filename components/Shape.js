@@ -61,16 +61,6 @@ const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled
         pan.setValue({ x: 0, y: 0 });
         scale.setValue(1);
         
-        // Kısa bir fade out animasyonu
-        Animated.timing(opacity, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }).start(() => {
-          // Animasyon bitince opacity'yi geri getir (yeni shape için)
-          opacity.setValue(1);
-        });
-        
         onDragEnd();
       },
     })
