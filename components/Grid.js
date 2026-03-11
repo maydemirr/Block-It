@@ -68,7 +68,12 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.gridBackground,
     padding: 10,
-    borderRadius: 10,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   row: {
     flexDirection: 'row',
@@ -78,7 +83,12 @@ const styles = StyleSheet.create({
     height: CELL_SIZE,
     backgroundColor: COLORS.cell,
     margin: CELL_GAP / 2,
-    borderRadius: 4,
+    borderRadius: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 3,
   },
   highlighted: {
     opacity: 0.5,

@@ -115,7 +115,12 @@ const styles = StyleSheet.create({
     width: CELL_SIZE * 0.8,
     height: CELL_SIZE * 0.8,
     margin: CELL_GAP / 2,
-    borderRadius: 4,
+    borderRadius: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 5,
   },
   emptyCell: {
     backgroundColor: 'transparent',
