@@ -37,9 +37,9 @@ const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled
         // Y ekseninde -120 offset ekle (blok parmağın üstünde dursun)
         pan.setValue({ x: gestureState.dx, y: gestureState.dy - 120 });
         
-        // Şeklin mevcut pozisyonunu hesapla (offset olmadan)
+        // Şeklin mevcut pozisyonunu hesapla (offset ile birlikte)
         const currentX = shapePosition.current.x + gestureState.dx;
-        const currentY = shapePosition.current.y + gestureState.dy;
+        const currentY = shapePosition.current.y + gestureState.dy - 120;
         
         console.log('Shape moving:', { currentX, currentY, dx: gestureState.dx, dy: gestureState.dy });
         onDragMove(currentX, currentY);
