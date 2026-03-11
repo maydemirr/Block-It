@@ -82,44 +82,27 @@ export default function App() {
   };
 
   // Sürükleme devam ediyor
-  const handleDragMove = (x, y) => {
+  const handleDragMove = (blockX, blockY) => {
     const draggedShape = draggedShapeRef.current;
-    console.log('handleDragMove called:', { x, y, hasDraggedShape: !!draggedShape });
     
     if (!draggedShape) return;
 
     const { x: gridX, y: gridY } = gridPosition.current;
     
-    console.log('Grid position in move:', { gridX, gridY });
-    
     if (!gridX && gridX !== 0) {
-      console.log('Grid position not ready');
       return;
     }
     
     const cellTotalSize = CELL_SIZE + CELL_GAP;
     
-    // Bloğun boyutunu hesapla
-    const shapeWidth = draggedShape.pattern[0].length;
-    const shapeHeight = draggedShape.pattern.length;
+    // Bloğun sol üst köşesinden grid koordinatlarına dönüştür
+    // Grid'in padding'i 10
+    const relativeX = blockX - gridX - 10;
+    const relativeY = blockY - gridY - 10;
     
-    // Bloğun merkezini hesaba katarak offset ekle
-    const centerOffsetX = (shapeWidth * CELL_SIZE * 0.8) / 2;
-    const centerOffsetY = (shapeHeight * CELL_SIZE * 0.8) / 2;
-    
-    // Grid içindeki pozisyonu hesapla (merkez offset ile)
-    const relativeX = x - gridX - 10 - centerOffsetX;
-    const relativeY = y - gridY - 10 - centerOffsetY;
-    
-    const col = Math.floor(relativeX / cellTotalSize);
-    const row = Math.floor(relativeY / cellTotalSize);
-
-    console.log('Calculated position:', { row, col, relativeX, relativeY });
-
-    // Debug
-    if (row >= 0 && row < 8 && col >= 0 && col < 8) {
-      console.log('Valid position:', { row, col });
-    }
+    // Hücre koordinatlarını hesapla
+    const col = Math.round(relativeX / cellTotalSize);
+    const row = Math.round(relativeY / cellTotalSize);
 
     // Şekil yerleştirilebilir mi kontrol et
     if (canPlaceShape(grid, draggedShape, row, col)) {
@@ -133,11 +116,9 @@ export default function App() {
       });
       setHighlightCells(cells);
       lastValidPosition.current = { row, col, cells };
-      console.log('Can place! Cells:', cells.length);
     } else {
       setHighlightCells([]);
       lastValidPosition.current = null;
-      console.log('Cannot place at:', { row, col });
     }
   };
 

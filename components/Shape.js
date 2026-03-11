@@ -7,12 +7,20 @@ const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
   const shapePosition = useRef({ x: 0, y: 0 });
+  const shapeRef = useRef(null);
 
   // Shape değiştiğinde Animated değerlerini sıfırla
   useEffect(() => {
     pan.setValue({ x: 0, y: 0 });
     scale.setValue(1);
     opacity.setValue(1);
+    
+    // Shape'in gerçek pozisyonunu ölç
+    if (shapeRef.current) {
+      shapeRef.current.measure((x, y, width, height, pageX, pageY) => {
+        shapePosition.current = { x: pageX, y: pageY };
+      });
+    }
   }, [shape.uniqueId, pan, scale, opacity]);
 
   const panResponder = useRef(
@@ -21,11 +29,12 @@ const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled
       onMoveShouldSetPanResponder: () => !disabled,
       onPanResponderGrant: (e, gestureState) => {
         console.log('Shape drag started');
-        // Şeklin başlangıç pozisyonunu kaydet
-        shapePosition.current = {
-          x: e.nativeEvent.pageX,
-          y: e.nativeEvent.pageY
-        };
+        // Shape'in gerçek pozisyonunu al
+        if (shapeRef.current) {
+          shapeRef.current.measure((x, y, width, height, pageX, pageY) => {
+            shapePosition.current = { x: pageX, y: pageY };
+          });
+        }
         
         Animated.spring(scale, {
           toValue: 1.2,
@@ -34,15 +43,16 @@ const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled
         onDragStart(shape);
       },
       onPanResponderMove: (e, gestureState) => {
-        // Y ekseninde -120 offset ekle (blok parmağın üstünde dursun)
-        pan.setValue({ x: gestureState.dx, y: gestureState.dy - 120 });
+        const Y_OFFSET = -120; // Blok parmağın üstünde dursun
         
-        // Şeklin mevcut pozisyonunu hesapla (offset ile birlikte)
-        const currentX = shapePosition.current.x + gestureState.dx;
-        const currentY = shapePosition.current.y + gestureState.dy - 120;
+        // Görsel pozisyon (offset ile)
+        pan.setValue({ x: gestureState.dx, y: gestureState.dy + Y_OFFSET });
         
-        console.log('Shape moving:', { currentX, currentY, dx: gestureState.dx, dy: gestureState.dy });
-        onDragMove(currentX, currentY);
+        // Bloğun sol üst köşesinin pozisyonunu hesapla (görsel offset ile)
+        const topLeftX = shapePosition.current.x + gestureState.dx;
+        const topLeftY = shapePosition.current.y + gestureState.dy + Y_OFFSET;
+        
+        onDragMove(topLeftX, topLeftY);
       },
       onPanResponderRelease: () => {
         console.log('Shape drag ended');
@@ -68,7 +78,9 @@ const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled
 
   return (
     <Animated.View
+      ref={shapeRef}
       {...panResponder.panHandlers}
+      collapsable={false}
       style={[
         styles.container,
         {
