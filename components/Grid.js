@@ -2,7 +2,7 @@ import React, { forwardRef, useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import { GRID_SIZE, CELL_SIZE, CELL_GAP, getColors } from '../constants/colors';
 
-const Cell = ({ cell, isHighlighted, willClear, shouldFade, colors }) => {
+const Cell = ({ cell, isHighlighted, willClear, shouldFade, colors, previewColor }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -17,12 +17,14 @@ const Cell = ({ cell, isHighlighted, willClear, shouldFade, colors }) => {
     }
   }, [shouldFade]);
 
+  const backgroundColor = cell !== 0 ? colors.shapes[cell - 1] : colors.cell;
+
   return (
     <Animated.View
       style={[
         styles.cell,
-        { backgroundColor: cell !== 0 ? colors.shapes[cell - 1] : colors.cell },
-        isHighlighted && styles.highlighted,
+        { backgroundColor },
+        isHighlighted && { backgroundColor: previewColor, opacity: 0.6 },
         willClear && styles.willClear,
         { opacity: fadeAnim },
       ]}
@@ -30,7 +32,7 @@ const Cell = ({ cell, isHighlighted, willClear, shouldFade, colors }) => {
   );
 };
 
-const Grid = forwardRef(({ grid, highlightCells = [], willClearCells = [], fadingCells = [], darkTheme = true }, ref) => {
+const Grid = forwardRef(({ grid, highlightCells = [], willClearCells = [], fadingCells = [], darkTheme = true, previewColor = '#00f5ff' }, ref) => {
   const colors = getColors(darkTheme);
   
   const isHighlighted = (row, col) => {
@@ -57,6 +59,7 @@ const Grid = forwardRef(({ grid, highlightCells = [], willClearCells = [], fadin
               willClear={willClear(rowIndex, colIndex)}
               shouldFade={shouldFade(rowIndex, colIndex)}
               colors={colors}
+              previewColor={previewColor}
             />
           ))}
         </View>
@@ -91,15 +94,9 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
-  highlighted: {
-    opacity: 0.5,
-    borderWidth: 2,
-    borderColor: '#ffffff',
-  },
   willClear: {
     borderWidth: 3,
-    borderColor: '#ffffff',
-    opacity: 0.8,
+    borderColor: '#ff6b9d',
   },
 });
 

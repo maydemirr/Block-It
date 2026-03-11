@@ -40,6 +40,7 @@ export default function App() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [hapticEnabled, setHapticEnabled] = useState(true);
   const [darkTheme, setDarkTheme] = useState(true);
+  const [previewColor, setPreviewColor] = useState('#00f5ff');
   
   const gridRef = useRef(null);
   const gridPosition = useRef({ x: 0, y: 0 });
@@ -122,6 +123,8 @@ export default function App() {
   // Sürükleme başladı
   const handleDragStart = (shape) => {
     draggedShapeRef.current = shape;
+    const colors = getColors(darkTheme);
+    setPreviewColor(colors.shapes[shape.colorIndex]);
     console.log('Drag started with shape:', shape.id);
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -409,7 +412,7 @@ export default function App() {
         onLayout={onGridLayout}
         style={styles.gridContainer}
       >
-        <Grid ref={gridRef} grid={grid} highlightCells={highlightCells} willClearCells={willClearCells} fadingCells={fadingCells} darkTheme={darkTheme} />
+        <Grid ref={gridRef} grid={grid} highlightCells={highlightCells} willClearCells={willClearCells} fadingCells={fadingCells} darkTheme={darkTheme} previewColor={previewColor} />
       </View>
       
       <ComboNotification combo={combo} visible={showComboNotification} />
