@@ -43,7 +43,7 @@ const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled
         onDragStart(shape);
       },
       onPanResponderMove: (e, gestureState) => {
-        const Y_OFFSET = -120; // Blok parmağın üstünde dursun
+        const Y_OFFSET = -150; // Blok parmağın üstünde dursun
         
         // Görsel pozisyon (offset ile)
         pan.setValue({ x: gestureState.dx, y: gestureState.dy + Y_OFFSET });
