@@ -8,6 +8,7 @@ import Shape from './components/Shape';
 import ScoreBoard from './components/ScoreBoard';
 import GameOver from './components/GameOver';
 import MainMenu from './components/MainMenu';
+import ComboNotification from './components/ComboNotification';
 
 import { COLORS, CELL_SIZE, CELL_GAP } from './constants/colors';
 import { getRandomShapes } from './utils/shapes';
@@ -34,6 +35,7 @@ export default function App() {
   const [willClearCells, setWillClearCells] = useState([]);
   const [fadingCells, setFadingCells] = useState([]);
   const [combo, setCombo] = useState(0);
+  const [showComboNotification, setShowComboNotification] = useState(false);
   
   const gridRef = useRef(null);
   const gridPosition = useRef({ x: 0, y: 0 });
@@ -191,6 +193,10 @@ export default function App() {
         const newCombo = Math.min(combo + 1, 10);
         setCombo(newCombo);
         
+        // Kombo bildirimini göster
+        setShowComboNotification(true);
+        setTimeout(() => setShowComboNotification(false), 1400);
+        
         // Grid tamamen temiz mi kontrol et
         const isGridEmpty = clearedGrid.every(row => row.every(cell => cell === 0));
         
@@ -343,6 +349,8 @@ export default function App() {
       >
         <Grid ref={gridRef} grid={grid} highlightCells={highlightCells} willClearCells={willClearCells} fadingCells={fadingCells} />
       </View>
+      
+      <ComboNotification combo={combo} visible={showComboNotification} />
       
       <View style={styles.shapesContainer}>
         {shapes.map((shape) => (
