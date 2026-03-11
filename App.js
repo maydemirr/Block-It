@@ -31,6 +31,7 @@ export default function App() {
   const [highScore, setHighScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [highlightCells, setHighlightCells] = useState([]);
+  const [willClearCells, setWillClearCells] = useState([]);
   
   const gridRef = useRef(null);
   const gridPosition = useRef({ x: 0, y: 0 });
@@ -119,8 +120,19 @@ export default function App() {
       });
       setHighlightCells(cells);
       lastValidPosition.current = { row, col, cells };
+      
+      // Şekil yerleştirilirse hangi satır/sütunlar temizlenecek kontrol et
+      const tempGrid = placeShape(grid, draggedShape, row, col, 0);
+      const { clearedCells } = checkAndClearLines(tempGrid);
+      
+      if (clearedCells && clearedCells.length > 0) {
+        setWillClearCells(clearedCells);
+      } else {
+        setWillClearCells([]);
+      }
     } else {
       setHighlightCells([]);
+      setWillClearCells([]);
       lastValidPosition.current = null;
     }
   };
@@ -195,6 +207,7 @@ export default function App() {
     draggedShapeRef.current = null;
     lastValidPosition.current = null;
     setHighlightCells([]);
+    setWillClearCells([]);
     
     // Haptic feedback
     if (clearedCount > 0) {
@@ -268,7 +281,7 @@ export default function App() {
         onLayout={onGridLayout}
         style={styles.gridContainer}
       >
-        <Grid ref={gridRef} grid={grid} highlightCells={highlightCells} />
+        <Grid ref={gridRef} grid={grid} highlightCells={highlightCells} willClearCells={willClearCells} />
       </View>
       
       <View style={styles.shapesContainer}>

@@ -51,10 +51,14 @@ export const placeShape = (grid, shape, row, col, colorIndex) => {
 export const checkAndClearLines = (grid) => {
   let newGrid = grid.map(row => [...row]);
   let clearedCount = 0;
+  let clearedCells = [];
   
   // Satırları kontrol et
   for (let i = 0; i < GRID_SIZE; i++) {
     if (newGrid[i].every(cell => cell !== 0)) {
+      for (let j = 0; j < GRID_SIZE; j++) {
+        clearedCells.push({ row: i, col: j });
+      }
       newGrid[i] = Array(GRID_SIZE).fill(0);
       clearedCount++;
     }
@@ -71,13 +75,16 @@ export const checkAndClearLines = (grid) => {
     }
     if (columnFull) {
       for (let i = 0; i < GRID_SIZE; i++) {
+        if (!clearedCells.some(cell => cell.row === i && cell.col === j)) {
+          clearedCells.push({ row: i, col: j });
+        }
         newGrid[i][j] = 0;
       }
       clearedCount++;
     }
   }
   
-  return { newGrid, clearedCount };
+  return { newGrid, clearedCount, clearedCells };
 };
 
 // Herhangi bir şekil yerleştirilebilir mi?
