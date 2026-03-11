@@ -99,9 +99,17 @@ export default function App() {
     
     const cellTotalSize = CELL_SIZE + CELL_GAP;
     
-    // Grid içindeki pozisyonu hesapla (padding dahil)
-    const relativeX = x - gridX - 10; // 10 = grid padding
-    const relativeY = y - gridY - 10;
+    // Bloğun boyutunu hesapla
+    const shapeWidth = draggedShape.pattern[0].length;
+    const shapeHeight = draggedShape.pattern.length;
+    
+    // Bloğun merkezini hesaba katarak offset ekle
+    const centerOffsetX = (shapeWidth * CELL_SIZE * 0.8) / 2;
+    const centerOffsetY = (shapeHeight * CELL_SIZE * 0.8) / 2;
+    
+    // Grid içindeki pozisyonu hesapla (merkez offset ile)
+    const relativeX = x - gridX - 10 - centerOffsetX;
+    const relativeY = y - gridY - 10 - centerOffsetY;
     
     const col = Math.floor(relativeX / cellTotalSize);
     const row = Math.floor(relativeY / cellTotalSize);
