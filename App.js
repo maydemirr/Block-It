@@ -7,6 +7,7 @@ import Grid from './components/Grid';
 import Shape from './components/Shape';
 import ScoreBoard from './components/ScoreBoard';
 import GameOver from './components/GameOver';
+import MainMenu from './components/MainMenu';
 
 import { COLORS, CELL_SIZE, CELL_GAP } from './constants/colors';
 import { getRandomShapes } from './utils/shapes';
@@ -22,6 +23,8 @@ import {
 const STORAGE_KEY = '@block_blast_high_score';
 
 export default function App() {
+  const [gameMode, setGameMode] = useState(null); // null, 'classic', 'timed'
+  const [isPaused, setIsPaused] = useState(false);
   const [grid, setGrid] = useState(createEmptyGrid());
   const [shapes, setShapes] = useState(getRandomShapes());
   const [score, setScore] = useState(0);
@@ -226,11 +229,43 @@ export default function App() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
 
+  const handleStartClassic = () => {
+    setGameMode('classic');
+    setIsPaused(false);
+    handleRestart();
+  };
+
+  const handleStartTimed = () => {
+    setGameMode('timed');
+    setIsPaused(false);
+    handleRestart();
+  };
+
+  const handleBackToMenu = () => {
+    setIsPaused(true);
+  };
+
+  const handleResume = () => {
+    setIsPaused(false);
+  };
+
+  // Ana menü veya pause menüsü göster
+  if (!gameMode || isPaused) {
+    return (
+      <MainMenu 
+        onStartClassic={handleStartClassic} 
+        onStartTimed={handleStartTimed}
+        onResume={handleResume}
+        hasActiveGame={gameMode && isPaused}
+      />
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      <ScoreBoard score={score} highScore={highScore} />
+      <ScoreBoard score={score} highScore={highScore} onBackToMenu={handleBackToMenu} />
       
       <View
         onLayout={onGridLayout}
