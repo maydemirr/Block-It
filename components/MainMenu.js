@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
-import { COLORS } from '../constants/colors';
+import { getColors } from '../constants/colors';
 import Settings from './Settings';
 
-const MainMenu = ({ onStartClassic, onResume, hasActiveGame, soundEnabled, setSoundEnabled, hapticEnabled, setHapticEnabled }) => {
+const MainMenu = ({ onStartClassic, onResume, hasActiveGame, soundEnabled, setSoundEnabled, hapticEnabled, setHapticEnabled, darkTheme, setDarkTheme }) => {
   const [showSettings, setShowSettings] = useState(false);
+  const colors = getColors(darkTheme);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <TouchableOpacity 
-        style={styles.settingsButton} 
+        style={[styles.settingsButton, { backgroundColor: colors.gridBackground }]} 
         onPress={() => setShowSettings(true)}
         activeOpacity={0.8}
       >
@@ -17,8 +18,8 @@ const MainMenu = ({ onStartClassic, onResume, hasActiveGame, soundEnabled, setSo
       </TouchableOpacity>
 
       <View style={styles.content}>
-        <Text style={styles.title}>Block It</Text>
-        <Text style={styles.subtitle}>Puzzle Oyunu</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Block It</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Puzzle Oyunu</Text>
         
         <View style={styles.buttonsContainer}>
           {hasActiveGame && (
@@ -27,18 +28,18 @@ const MainMenu = ({ onStartClassic, onResume, hasActiveGame, soundEnabled, setSo
               onPress={onResume}
               activeOpacity={0.8}
             >
-              <Text style={styles.buttonText}>Devam Et</Text>
-              <Text style={styles.buttonSubtext}>Oyuna geri dön</Text>
+              <Text style={[styles.buttonText, { color: colors.buttonText }]}>Devam Et</Text>
+              <Text style={[styles.buttonSubtext, { color: colors.buttonText }]}>Oyuna geri dön</Text>
             </TouchableOpacity>
           )}
           
           <TouchableOpacity 
-            style={[styles.button, styles.primaryButton]} 
+            style={[styles.button, { backgroundColor: colors.button }]} 
             onPress={onStartClassic}
             activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>Oyunu Başlat</Text>
-            <Text style={styles.buttonSubtext}>Klasik mod</Text>
+            <Text style={[styles.buttonText, { color: colors.buttonText }]}>Oyunu Başlat</Text>
+            <Text style={[styles.buttonSubtext, { color: colors.buttonText }]}>Klasik mod</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -50,6 +51,8 @@ const MainMenu = ({ onStartClassic, onResume, hasActiveGame, soundEnabled, setSo
         setSoundEnabled={setSoundEnabled}
         hapticEnabled={hapticEnabled}
         setHapticEnabled={setHapticEnabled}
+        darkTheme={darkTheme}
+        setDarkTheme={setDarkTheme}
       />
     </View>
   );
@@ -58,7 +61,6 @@ const MainMenu = ({ onStartClassic, onResume, hasActiveGame, soundEnabled, setSo
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -66,7 +68,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 50,
     right: 20,
-    backgroundColor: COLORS.gridBackground,
     width: 50,
     height: 50,
     borderRadius: 25,
@@ -89,12 +90,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 56,
     fontWeight: 'bold',
-    color: COLORS.text,
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 20,
-    color: COLORS.textSecondary,
     marginBottom: 60,
   },
   buttonsContainer: {
@@ -113,24 +112,16 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  primaryButton: {
-    backgroundColor: COLORS.button,
-  },
   resumeButton: {
     backgroundColor: '#00d9ff',
-  },
-  secondaryButton: {
-    backgroundColor: '#4ecdc4',
   },
   buttonText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.buttonText,
     marginBottom: 5,
   },
   buttonSubtext: {
     fontSize: 14,
-    color: COLORS.buttonText,
     opacity: 0.8,
   },
 });

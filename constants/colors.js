@@ -19,6 +19,29 @@ export const COLORS = {
   buttonText: '#ffffff',
 };
 
+export const LIGHT_COLORS = {
+  background: '#f5f5f5',
+  gridBackground: '#ffffff',
+  gridLine: '#e0e0e0',
+  cell: '#e8e8e8',
+  cellFilled: '#ff6b9d',
+  shapes: [
+    '#00d4ff', // Cyan
+    '#ff6b9d', // Pembe
+    '#00d98e', // Yeşil
+    '#ffb800', // Sarı
+    '#9b59b6', // Mor
+    '#ff5733', // Turuncu
+    '#5b4cdb', // Mavi-mor
+  ],
+  text: '#1a1a1a',
+  textSecondary: '#666666',
+  button: '#ff6b9d',
+  buttonText: '#ffffff',
+};
+
+export const getColors = (isDark = true) => isDark ? COLORS : LIGHT_COLORS;
+
 export const GRID_SIZE = 8;
 export const CELL_SIZE = 40;
 export const CELL_GAP = 2;

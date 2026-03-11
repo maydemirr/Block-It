@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Switch } from 'react-native';
 import { COLORS } from '../constants/colors';
 
-const Settings = ({ visible, onClose, soundEnabled, setSoundEnabled, hapticEnabled, setHapticEnabled }) => {
+const Settings = ({ visible, onClose, soundEnabled, setSoundEnabled, hapticEnabled, setHapticEnabled, darkTheme, setDarkTheme }) => {
   return (
     <Modal
       visible={visible}
@@ -15,6 +15,19 @@ const Settings = ({ visible, onClose, soundEnabled, setSoundEnabled, hapticEnabl
           <Text style={styles.title}>Ayarlar</Text>
           
           <View style={styles.settingsContainer}>
+            <View style={styles.settingRow}>
+              <View style={styles.settingInfo}>
+                <Text style={styles.settingLabel}>Koyu Tema</Text>
+                <Text style={styles.settingDescription}>Karanlık mod aç/kapat</Text>
+              </View>
+              <Switch
+                value={darkTheme}
+                onValueChange={setDarkTheme}
+                trackColor={{ false: '#767577', true: '#4fffb0' }}
+                thumbColor={darkTheme ? '#fff' : '#f4f3f4'}
+              />
+            </View>
+            
             <View style={styles.settingRow}>
               <View style={styles.settingInfo}>
                 <Text style={styles.settingLabel}>Ses Efektleri</Text>

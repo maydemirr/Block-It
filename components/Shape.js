@@ -1,8 +1,9 @@
 import React, { useRef, useEffect } from 'react';
 import { View, StyleSheet, PanResponder, Animated } from 'react-native';
-import { COLORS, CELL_SIZE, CELL_GAP } from '../constants/colors';
+import { CELL_SIZE, CELL_GAP, getColors } from '../constants/colors';
 
-const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled }) => {
+const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled, darkTheme = true }) => {
+  const colors = getColors(darkTheme);
   const pan = useRef(new Animated.ValueXY()).current;
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
@@ -92,7 +93,7 @@ const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled
               style={[
                 styles.cell,
                 cell === 1 && {
-                  backgroundColor: COLORS.shapes[colorIndex],
+                  backgroundColor: colors.shapes[colorIndex],
                 },
                 cell === 0 && styles.emptyCell,
               ]}

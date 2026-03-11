@@ -1,8 +1,8 @@
 import React, { forwardRef, useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
-import { COLORS, GRID_SIZE, CELL_SIZE, CELL_GAP } from '../constants/colors';
+import { GRID_SIZE, CELL_SIZE, CELL_GAP, getColors } from '../constants/colors';
 
-const Cell = ({ cell, isHighlighted, willClear, shouldFade }) => {
+const Cell = ({ cell, isHighlighted, willClear, shouldFade, colors }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -21,7 +21,7 @@ const Cell = ({ cell, isHighlighted, willClear, shouldFade }) => {
     <Animated.View
       style={[
         styles.cell,
-        cell !== 0 && { backgroundColor: COLORS.shapes[cell - 1] },
+        { backgroundColor: cell !== 0 ? colors.shapes[cell - 1] : colors.cell },
         isHighlighted && styles.highlighted,
         willClear && styles.willClear,
         { opacity: fadeAnim },
@@ -30,7 +30,9 @@ const Cell = ({ cell, isHighlighted, willClear, shouldFade }) => {
   );
 };
 
-const Grid = forwardRef(({ grid, highlightCells = [], willClearCells = [], fadingCells = [] }, ref) => {
+const Grid = forwardRef(({ grid, highlightCells = [], willClearCells = [], fadingCells = [], darkTheme = true }, ref) => {
+  const colors = getColors(darkTheme);
+  
   const isHighlighted = (row, col) => {
     return highlightCells.some(cell => cell.row === row && cell.col === col);
   };
@@ -44,7 +46,7 @@ const Grid = forwardRef(({ grid, highlightCells = [], willClearCells = [], fadin
   };
 
   return (
-    <View ref={ref} style={styles.container} collapsable={false}>
+    <View ref={ref} style={[styles.container, { backgroundColor: colors.gridBackground }]} collapsable={false}>
       {grid.map((row, rowIndex) => (
         <View key={rowIndex} style={styles.row}>
           {row.map((cell, colIndex) => (
@@ -54,6 +56,7 @@ const Grid = forwardRef(({ grid, highlightCells = [], willClearCells = [], fadin
               isHighlighted={isHighlighted(rowIndex, colIndex)}
               willClear={willClear(rowIndex, colIndex)}
               shouldFade={shouldFade(rowIndex, colIndex)}
+              colors={colors}
             />
           ))}
         </View>
@@ -66,7 +69,6 @@ Grid.displayName = 'Grid';
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.gridBackground,
     padding: 10,
     borderRadius: 12,
     shadowColor: '#000',
@@ -81,7 +83,6 @@ const styles = StyleSheet.create({
   cell: {
     width: CELL_SIZE,
     height: CELL_SIZE,
-    backgroundColor: COLORS.cell,
     margin: CELL_GAP / 2,
     borderRadius: 6,
     shadowColor: '#000',
@@ -93,7 +94,7 @@ const styles = StyleSheet.create({
   highlighted: {
     opacity: 0.5,
     borderWidth: 2,
-    borderColor: COLORS.text,
+    borderColor: '#ffffff',
   },
   willClear: {
     borderWidth: 3,

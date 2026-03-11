@@ -10,7 +10,7 @@ import GameOver from './components/GameOver';
 import MainMenu from './components/MainMenu';
 import ComboNotification from './components/ComboNotification';
 
-import { COLORS, CELL_SIZE, CELL_GAP } from './constants/colors';
+import { COLORS, LIGHT_COLORS, CELL_SIZE, CELL_GAP, getColors } from './constants/colors';
 import { getRandomShapes } from './utils/shapes';
 import {
   createEmptyGrid,
@@ -39,6 +39,7 @@ export default function App() {
   const [showComboNotification, setShowComboNotification] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [hapticEnabled, setHapticEnabled] = useState(true);
+  const [darkTheme, setDarkTheme] = useState(true);
   
   const gridRef = useRef(null);
   const gridPosition = useRef({ x: 0, y: 0 });
@@ -58,17 +59,19 @@ export default function App() {
         const settings = JSON.parse(saved);
         setSoundEnabled(settings.soundEnabled ?? true);
         setHapticEnabled(settings.hapticEnabled ?? true);
+        setDarkTheme(settings.darkTheme ?? true);
       }
     } catch (error) {
       console.error('Settings yüklenemedi:', error);
     }
   };
 
-  const saveSettings = async (sound, haptic) => {
+  const saveSettings = async (sound, haptic, dark) => {
     try {
       const settings = {
         soundEnabled: sound,
         hapticEnabled: haptic,
+        darkTheme: dark,
       };
       await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
     } catch (error) {
@@ -78,8 +81,8 @@ export default function App() {
 
   // Settings değiştiğinde kaydet
   useEffect(() => {
-    saveSettings(soundEnabled, hapticEnabled);
-  }, [soundEnabled, hapticEnabled]);
+    saveSettings(soundEnabled, hapticEnabled, darkTheme);
+  }, [soundEnabled, hapticEnabled, darkTheme]);
 
   const loadHighScore = async () => {
     try {
@@ -382,26 +385,31 @@ export default function App() {
         setSoundEnabled={setSoundEnabled}
         hapticEnabled={hapticEnabled}
         setHapticEnabled={setHapticEnabled}
+        darkTheme={darkTheme}
+        setDarkTheme={setDarkTheme}
       />
     );
   }
 
+  const colors = getColors(darkTheme);
+
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={darkTheme ? "light-content" : "dark-content"} />
       
       <ScoreBoard 
         score={score} 
         highScore={highScore} 
         onBackToMenu={handleBackToMenu}
         combo={combo}
+        darkTheme={darkTheme}
       />
       
       <View
         onLayout={onGridLayout}
         style={styles.gridContainer}
       >
-        <Grid ref={gridRef} grid={grid} highlightCells={highlightCells} willClearCells={willClearCells} fadingCells={fadingCells} />
+        <Grid ref={gridRef} grid={grid} highlightCells={highlightCells} willClearCells={willClearCells} fadingCells={fadingCells} darkTheme={darkTheme} />
       </View>
       
       <ComboNotification combo={combo} visible={showComboNotification} />
@@ -416,6 +424,7 @@ export default function App() {
             onDragMove={handleDragMove}
             onDragEnd={handleDragEnd}
             disabled={gameOver}
+            darkTheme={darkTheme}
           />
         ))}
       </View>
@@ -425,6 +434,7 @@ export default function App() {
         score={score}
         highScore={highScore}
         onRestart={handleRestart}
+        darkTheme={darkTheme}
       />
     </SafeAreaView>
   );
@@ -433,7 +443,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   gridContainer: {
     alignItems: 'center',
