@@ -51,9 +51,12 @@ const ScoreBoard = ({ score, highScore, onBackToMenu, combo }) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.menuButton} onPress={onBackToMenu}>
-        <Text style={styles.menuButtonText}>☰</Text>
-      </TouchableOpacity>
+      <View style={styles.leftSection}>
+        <View style={styles.highScoreBox}>
+          <Text style={styles.highScoreLabel}>EN YÜKSEK</Text>
+          <Text style={styles.highScoreText}>{highScore}</Text>
+        </View>
+      </View>
       
       <Animated.Text 
         style={[
@@ -67,14 +70,9 @@ const ScoreBoard = ({ score, highScore, onBackToMenu, combo }) => {
       </Animated.Text>
       
       <View style={styles.rightSection}>
-        <View style={styles.smallBox}>
-          <Text style={styles.smallLabel}>EN YÜKSEK</Text>
-          <Text style={styles.smallScore}>{highScore}</Text>
-        </View>
-        <View style={[styles.smallBox, styles.comboBox]}>
-          <Text style={styles.smallLabel}>KOMBO</Text>
-          <Text style={styles.smallScore}>{combo > 0 ? combo : ''}</Text>
-        </View>
+        <TouchableOpacity style={styles.menuButton} onPress={onBackToMenu}>
+          <Text style={styles.menuButtonText}>☰</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -84,10 +82,16 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     paddingVertical: 20,
     paddingHorizontal: 10,
     minHeight: 90,
+  },
+  leftSection: {
+    gap: 8,
+  },
+  rightSection: {
+    gap: 8,
   },
   menuButton: {
     backgroundColor: COLORS.gridBackground,
@@ -102,20 +106,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
   },
-  mainScore: {
-    color: COLORS.text,
-    fontSize: 48,
-    fontWeight: 'bold',
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    textAlign: 'center',
-  },
-  rightSection: {
-    marginLeft: 'auto',
-    gap: 8,
-  },
-  smallBox: {
+  highScoreBox: {
     alignItems: 'center',
     backgroundColor: COLORS.gridBackground,
     paddingHorizontal: 15,
@@ -123,19 +114,26 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     minWidth: 80,
   },
-  comboBox: {
-    backgroundColor: '#ff6b6b',
-  },
-  smallLabel: {
-    color: COLORS.textSecondary,
+  highScoreLabel: {
+    color: '#FFD700',
     fontSize: 9,
     fontWeight: '600',
     marginBottom: 2,
   },
-  smallScore: {
-    color: COLORS.text,
+  highScoreText: {
+    color: '#FFD700',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  mainScore: {
+    color: COLORS.text,
+    fontSize: 48,
+    fontWeight: 'bold',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 30,
+    textAlign: 'center',
   },
 });
 
