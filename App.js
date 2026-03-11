@@ -189,8 +189,8 @@ export default function App() {
         // Grid güncelle
         setGrid(clearedGrid);
         
-        // Kombo hesapla (max 10)
-        const newCombo = Math.min(combo + 1, 10);
+        // Kombo = kırılan satır/sütun sayısı (max 10)
+        const newCombo = Math.min(clearedCount, 10);
         setCombo(newCombo);
         
         // Kombo bildirimini göster
