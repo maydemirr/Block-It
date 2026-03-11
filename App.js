@@ -32,6 +32,7 @@ export default function App() {
   const [gameOver, setGameOver] = useState(false);
   const [highlightCells, setHighlightCells] = useState([]);
   const [willClearCells, setWillClearCells] = useState([]);
+  const [fadingCells, setFadingCells] = useState([]);
   
   const gridRef = useRef(null);
   const gridPosition = useRef({ x: 0, y: 0 });
@@ -170,37 +171,93 @@ export default function App() {
     console.log('Shape placed, checking lines...');
     
     // Satır/sütun kontrolü
-    const { newGrid: clearedGrid, clearedCount } = checkAndClearLines(newGrid);
+    const { newGrid: clearedGrid, clearedCount, clearedCells } = checkAndClearLines(newGrid);
     
     console.log('Lines cleared:', clearedCount);
     
-    // Skor hesapla
-    const points = calculateScore(draggedShape.size, clearedCount);
-    const newScore = score + points;
-    setScore(newScore);
-    saveHighScore(newScore);
-    
-    console.log('Score updated:', newScore);
-    
-    // Grid güncelle
-    setGrid(clearedGrid);
-    
-    // Şekli kaldır
-    const newShapes = shapes.filter(s => s.uniqueId !== draggedShape.uniqueId);
-    
-    console.log('Shapes before:', shapes.length, shapes.map(s => s.uniqueId));
-    console.log('Shapes after:', newShapes.length, newShapes.map(s => s.uniqueId));
-    console.log('Removed shape:', draggedShape.uniqueId);
-    
-    // Tüm şekiller kullanıldıysa yeni şekiller ver
-    if (newShapes.length === 0) {
-      const freshShapes = getRandomShapes();
-      console.log('All shapes used, getting new shapes:', freshShapes.length);
-      setShapes(freshShapes);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (clearedCount > 0 && clearedCells && clearedCells.length > 0) {
+      // Fade animasyonunu başlat
+      setFadingCells(clearedCells);
+      
+      // Animasyon bitince grid'i güncelle
+      setTimeout(() => {
+        setFadingCells([]);
+        
+        // Skor hesapla
+        const points = calculateScore(draggedShape.size, clearedCount);
+        const newScore = score + points;
+        setScore(newScore);
+        saveHighScore(newScore);
+        
+        console.log('Score updated:', newScore);
+        
+        // Grid güncelle
+        setGrid(clearedGrid);
+        
+        // Şekli kaldır
+        const newShapes = shapes.filter(s => s.uniqueId !== draggedShape.uniqueId);
+        
+        console.log('Shapes before:', shapes.length, shapes.map(s => s.uniqueId));
+        console.log('Shapes after:', newShapes.length, newShapes.map(s => s.uniqueId));
+        console.log('Removed shape:', draggedShape.uniqueId);
+        
+        // Tüm şekiller kullanıldıysa yeni şekiller ver
+        if (newShapes.length === 0) {
+          const freshShapes = getRandomShapes();
+          console.log('All shapes used, getting new shapes:', freshShapes.length);
+          setShapes(freshShapes);
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        } else {
+          console.log('Setting remaining shapes');
+          setShapes(newShapes);
+        }
+        
+        // Haptic feedback
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        
+        // Oyun bitti mi kontrol et
+        setTimeout(() => {
+          checkGameOver(clearedGrid, newShapes.length === 0 ? getRandomShapes() : newShapes);
+        }, 100);
+      }, 350);
     } else {
-      console.log('Setting remaining shapes');
-      setShapes(newShapes);
+      // Temizlenen satır yoksa direkt devam et
+      // Skor hesapla
+      const points = calculateScore(draggedShape.size, clearedCount);
+      const newScore = score + points;
+      setScore(newScore);
+      saveHighScore(newScore);
+      
+      console.log('Score updated:', newScore);
+      
+      // Grid güncelle
+      setGrid(clearedGrid);
+      
+      // Şekli kaldır
+      const newShapes = shapes.filter(s => s.uniqueId !== draggedShape.uniqueId);
+    
+      console.log('Shapes before:', shapes.length, shapes.map(s => s.uniqueId));
+      console.log('Shapes after:', newShapes.length, newShapes.map(s => s.uniqueId));
+      console.log('Removed shape:', draggedShape.uniqueId);
+      
+      // Tüm şekiller kullanıldıysa yeni şekiller ver
+      if (newShapes.length === 0) {
+        const freshShapes = getRandomShapes();
+        console.log('All shapes used, getting new shapes:', freshShapes.length);
+        setShapes(freshShapes);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      } else {
+        console.log('Setting remaining shapes');
+        setShapes(newShapes);
+      }
+      
+      // Haptic feedback
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      
+      // Oyun bitti mi kontrol et
+      setTimeout(() => {
+        checkGameOver(clearedGrid, newShapes.length === 0 ? getRandomShapes() : newShapes);
+      }, 100);
     }
     
     // Temizlik
@@ -209,19 +266,7 @@ export default function App() {
     setHighlightCells([]);
     setWillClearCells([]);
     
-    // Haptic feedback
-    if (clearedCount > 0) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } else {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
-    
     console.log('handleDragEnd complete');
-    
-    // Oyun bitti mi kontrol et
-    setTimeout(() => {
-      checkGameOver(clearedGrid, newShapes.length === 0 ? getRandomShapes() : newShapes);
-    }, 100);
   };
 
   const checkGameOver = (currentGrid, currentShapes) => {
@@ -281,7 +326,7 @@ export default function App() {
         onLayout={onGridLayout}
         style={styles.gridContainer}
       >
-        <Grid ref={gridRef} grid={grid} highlightCells={highlightCells} willClearCells={willClearCells} />
+        <Grid ref={gridRef} grid={grid} highlightCells={highlightCells} willClearCells={willClearCells} fadingCells={fadingCells} />
       </View>
       
       <View style={styles.shapesContainer}>
