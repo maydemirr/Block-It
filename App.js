@@ -155,13 +155,13 @@ export default function App() {
 
     console.log('Placing shape at:', validPosition);
 
-    // Şekli yerleştir - rastgele renk kullan
+    // Şekli yerleştir - shape'in orijinal rengini kullan
     const { row, col } = validPosition;
-    const randomColorIndex = Math.floor(Math.random() * 5); // 0-4 arası rastgele renk
+    const shapeColorIndex = shapes.findIndex(s => s.uniqueId === draggedShape.uniqueId);
     
-    console.log('Random color index:', randomColorIndex);
+    console.log('Shape color index:', shapeColorIndex);
     
-    let newGrid = placeShape(grid, draggedShape, row, col, randomColorIndex);
+    let newGrid = placeShape(grid, draggedShape, row, col, shapeColorIndex);
     
     console.log('Shape placed, checking lines...');
     
