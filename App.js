@@ -33,6 +33,7 @@ export default function App() {
   const [highlightCells, setHighlightCells] = useState([]);
   const [willClearCells, setWillClearCells] = useState([]);
   const [fadingCells, setFadingCells] = useState([]);
+  const [combo, setCombo] = useState(0);
   
   const gridRef = useRef(null);
   const gridPosition = useRef({ x: 0, y: 0 });
@@ -183,16 +184,27 @@ export default function App() {
       setTimeout(() => {
         setFadingCells([]);
         
-        // Skor hesapla
-        const points = calculateScore(draggedShape.size, clearedCount);
-        const newScore = score + points;
+        // Grid güncelle
+        setGrid(clearedGrid);
+        
+        // Kombo hesapla (max 10)
+        const newCombo = Math.min(combo + 1, 10);
+        setCombo(newCombo);
+        
+        // Grid tamamen temiz mi kontrol et
+        const isGridEmpty = clearedGrid.every(row => row.every(cell => cell === 0));
+        
+        // Skor hesapla - kombo katsayısı ile
+        const basePoints = calculateScore(draggedShape.size, clearedCount);
+        const comboMultiplier = newCombo;
+        const emptyGridBonus = isGridEmpty ? 1000 : 0;
+        const totalPoints = (basePoints * comboMultiplier) + emptyGridBonus;
+        
+        const newScore = score + totalPoints;
         setScore(newScore);
         saveHighScore(newScore);
         
-        console.log('Score updated:', newScore);
-        
-        // Grid güncelle
-        setGrid(clearedGrid);
+        console.log('Score updated:', newScore, 'Combo:', newCombo, 'Empty grid bonus:', emptyGridBonus);
         
         // Şekli kaldır
         const newShapes = shapes.filter(s => s.uniqueId !== draggedShape.uniqueId);
@@ -221,7 +233,9 @@ export default function App() {
         }, 100);
       }, 350);
     } else {
-      // Temizlenen satır yoksa direkt devam et
+      // Temizlenen satır yoksa direkt devam et ve komboyu sıfırla
+      setCombo(0);
+      
       // Skor hesapla
       const points = calculateScore(draggedShape.size, clearedCount);
       const newScore = score + points;
@@ -320,6 +334,7 @@ export default function App() {
         score={score} 
         highScore={highScore} 
         onBackToMenu={handleBackToMenu}
+        combo={combo}
       />
       
       <View
