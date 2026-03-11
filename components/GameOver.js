@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
-import { COLORS } from '../constants/colors';
+import { getColors } from '../constants/colors';
 
-const GameOver = ({ visible, score, highScore, onRestart }) => {
+const GameOver = ({ visible, score, highScore, onRestart, darkTheme = true }) => {
   const isNewHighScore = score > highScore;
+  const colors = getColors(darkTheme);
 
   return (
     <Modal
@@ -12,25 +13,25 @@ const GameOver = ({ visible, score, highScore, onRestart }) => {
       animationType="fade"
     >
       <View style={styles.overlay}>
-        <View style={styles.container}>
-          <Text style={styles.title}>OYUN BİTTİ!</Text>
+        <View style={[styles.container, { backgroundColor: colors.gridBackground }]}>
+          <Text style={[styles.title, { color: colors.text }]}>OYUN BİTTİ!</Text>
           
           {isNewHighScore && (
-            <Text style={styles.newRecord}>🎉 YENİ REKOR! 🎉</Text>
+            <Text style={[styles.newRecord, { color: colors.button }]}>🎉 YENİ REKOR! 🎉</Text>
           )}
           
           <View style={styles.scoreContainer}>
-            <Text style={styles.label}>Skorunuz</Text>
-            <Text style={styles.score}>{score}</Text>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>Skorunuz</Text>
+            <Text style={[styles.score, { color: colors.text }]}>{ score}</Text>
           </View>
           
           <View style={styles.scoreContainer}>
-            <Text style={styles.label}>En Yüksek Skor</Text>
-            <Text style={styles.highScore}>{Math.max(score, highScore)}</Text>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>En Yüksek Skor</Text>
+            <Text style={[styles.highScore, { color: colors.button }]}>{Math.max(score, highScore)}</Text>
           </View>
           
-          <TouchableOpacity style={styles.button} onPress={onRestart}>
-            <Text style={styles.buttonText}>YENİDEN BAŞLA</Text>
+          <TouchableOpacity style={[styles.button, { backgroundColor: colors.button }]} onPress={onRestart}>
+            <Text style={[styles.buttonText, { color: colors.buttonText }]}>YENİDEN BAŞLA</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -46,20 +47,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   container: {
-    backgroundColor: COLORS.gridBackground,
     borderRadius: 20,
     padding: 30,
     alignItems: 'center',
     width: '80%',
   },
   title: {
-    color: COLORS.text,
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 20,
   },
   newRecord: {
-    color: COLORS.button,
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 20,
@@ -69,29 +67,24 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   label: {
-    color: COLORS.textSecondary,
     fontSize: 14,
     marginBottom: 5,
   },
   score: {
-    color: COLORS.text,
     fontSize: 36,
     fontWeight: 'bold',
   },
   highScore: {
-    color: COLORS.button,
     fontSize: 28,
     fontWeight: 'bold',
   },
   button: {
-    backgroundColor: COLORS.button,
     paddingHorizontal: 40,
     paddingVertical: 15,
     borderRadius: 10,
     marginTop: 20,
   },
   buttonText: {
-    color: COLORS.buttonText,
     fontSize: 18,
     fontWeight: 'bold',
   },

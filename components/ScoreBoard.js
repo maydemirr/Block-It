@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
-import { COLORS } from '../constants/colors';
+import { LinearGradient } from 'expo-linear-gradient';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { getColors } from '../constants/colors';
 
-const ScoreBoard = ({ score, highScore, onBackToMenu, combo }) => {
+const ScoreBoard = ({ score, highScore, onBackToMenu, combo, darkTheme = true }) => {
+  const colors = getColors(darkTheme);
   const [displayScore, setDisplayScore] = useState(score);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const prevScoreRef = useRef(score);
@@ -52,26 +55,48 @@ const ScoreBoard = ({ score, highScore, onBackToMenu, combo }) => {
   return (
     <View style={styles.container}>
       <View style={styles.leftSection}>
-        <View style={styles.highScoreBox}>
-          <Text style={styles.highScoreLabel}>EN YÜKSEK</Text>
+        <LinearGradient
+          colors={['#FFD700', '#FFA500']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.highScoreBox}
+        >
+          <Text style={styles.crownIcon}>👑</Text>
           <Text style={styles.highScoreText}>{highScore}</Text>
-        </View>
+        </LinearGradient>
       </View>
       
-      <Animated.Text 
+      <Animated.View
         style={[
-          styles.mainScore,
+          styles.mainScoreContainer,
           {
             transform: [{ scale: scaleAnim }],
           }
         ]}
       >
-        {displayScore}
-      </Animated.Text>
+        <MaskedView
+          maskElement={
+            <Text style={styles.mainScore}>
+              {displayScore}
+            </Text>
+          }
+        >
+          <LinearGradient
+            colors={['#ff6b9d', '#00f5ff', '#4fffb0', '#ffd93d', '#bd93f9', '#ff6348']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.gradient}
+          >
+            <Text style={[styles.mainScore, { opacity: 0 }]}>
+              {displayScore}
+            </Text>
+          </LinearGradient>
+        </MaskedView>
+      </Animated.View>
       
       <View style={styles.rightSection}>
-        <TouchableOpacity style={styles.menuButton} onPress={onBackToMenu}>
-          <Text style={styles.menuButtonText}>☰</Text>
+        <TouchableOpacity style={[styles.menuButton, { backgroundColor: colors.gridBackground }]} onPress={onBackToMenu}>
+          <Text style={[styles.menuButtonText, { color: colors.text }]}>☰</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -94,7 +119,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   menuButton: {
-    backgroundColor: COLORS.gridBackground,
     width: 50,
     height: 50,
     borderRadius: 10,
@@ -102,38 +126,48 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   menuButtonText: {
-    color: COLORS.text,
     fontSize: 28,
     fontWeight: 'bold',
   },
   highScoreBox: {
     alignItems: 'center',
-    backgroundColor: COLORS.gridBackground,
     paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 8,
-    minWidth: 80,
+    paddingVertical: 10,
+    borderRadius: 12,
+    minWidth: 70,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  highScoreLabel: {
-    color: '#FFD700',
-    fontSize: 9,
-    fontWeight: '600',
+  crownIcon: {
+    fontSize: 24,
     marginBottom: 2,
   },
   highScoreText: {
-    color: '#FFD700',
-    fontSize: 16,
+    color: '#1a1a1a',
+    fontSize: 20,
     fontWeight: 'bold',
   },
-  mainScore: {
-    color: COLORS.text,
-    fontSize: 48,
-    fontWeight: 'bold',
+  mainScoreContainer: {
+    flexDirection: 'row',
     position: 'absolute',
     left: 0,
     right: 0,
     top: 30,
-    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mainScore: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(255, 107, 157, 0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 15,
+  },
+  gradient: {
+    flex: 1,
   },
 });
 
