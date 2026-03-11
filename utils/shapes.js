@@ -46,5 +46,6 @@ export const getRandomShapes = () => {
   return shuffled.slice(0, 3).map((shape, index) => ({
     ...shape,
     uniqueId: `${shape.id}-${Date.now()}-${index}`,
+    colorIndex: index, // Sabit renk indexi
   }));
 };

@@ -162,7 +162,7 @@ export default function App() {
 
     // Şekli yerleştir - shape'in orijinal rengini kullan
     const { row, col } = validPosition;
-    const shapeColorIndex = shapes.findIndex(s => s.uniqueId === draggedShape.uniqueId);
+    const shapeColorIndex = draggedShape.colorIndex;
     
     console.log('Shape color index:', shapeColorIndex);
     
@@ -330,11 +330,11 @@ export default function App() {
       </View>
       
       <View style={styles.shapesContainer}>
-        {shapes.map((shape, index) => (
+        {shapes.map((shape) => (
           <Shape
             key={`${shape.uniqueId}-${shapes.length}`}
             shape={shape}
-            colorIndex={index}
+            colorIndex={shape.colorIndex}
             onDragStart={handleDragStart}
             onDragMove={handleDragMove}
             onDragEnd={handleDragEnd}
