@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { COLORS } from '../constants/colors';
 
-const MainMenu = ({ onStartClassic, onStartTimed, onResume, hasActiveGame }) => {
+const MainMenu = ({ onStartClassic, onResume, hasActiveGame }) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
@@ -26,17 +26,8 @@ const MainMenu = ({ onStartClassic, onStartTimed, onResume, hasActiveGame }) => 
             onPress={onStartClassic}
             activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>Klasik Mod</Text>
-            <Text style={styles.buttonSubtext}>Zamansız oyna</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.button, styles.secondaryButton]} 
-            onPress={onStartTimed}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.buttonText}>Zamana Karşı</Text>
-            <Text style={styles.buttonSubtext}>Süreyle yarış</Text>
+            <Text style={styles.buttonText}>Oyunu Başlat</Text>
+            <Text style={styles.buttonSubtext}>Klasik mod</Text>
           </TouchableOpacity>
         </View>
       </View>

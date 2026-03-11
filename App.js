@@ -23,7 +23,7 @@ import {
 const STORAGE_KEY = '@block_blast_high_score';
 
 export default function App() {
-  const [gameMode, setGameMode] = useState(null); // null, 'classic', 'timed'
+  const [gameMode, setGameMode] = useState(null); // null, 'classic'
   const [isPaused, setIsPaused] = useState(false);
   const [grid, setGrid] = useState(createEmptyGrid());
   const [shapes, setShapes] = useState(getRandomShapes());
@@ -235,12 +235,6 @@ export default function App() {
     handleRestart();
   };
 
-  const handleStartTimed = () => {
-    setGameMode('timed');
-    setIsPaused(false);
-    handleRestart();
-  };
-
   const handleBackToMenu = () => {
     setIsPaused(true);
   };
@@ -253,8 +247,7 @@ export default function App() {
   if (!gameMode || isPaused) {
     return (
       <MainMenu 
-        onStartClassic={handleStartClassic} 
-        onStartTimed={handleStartTimed}
+        onStartClassic={handleStartClassic}
         onResume={handleResume}
         hasActiveGame={gameMode && isPaused}
       />
@@ -265,7 +258,11 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      <ScoreBoard score={score} highScore={highScore} onBackToMenu={handleBackToMenu} />
+      <ScoreBoard 
+        score={score} 
+        highScore={highScore} 
+        onBackToMenu={handleBackToMenu}
+      />
       
       <View
         onLayout={onGridLayout}
