@@ -134,4 +134,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Shape;
+export default React.memo(Shape);

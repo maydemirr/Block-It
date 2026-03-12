@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { StyleSheet, View, SafeAreaView, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
@@ -121,7 +121,7 @@ export default function App() {
   };
 
   // Sürükleme başladı
-  const handleDragStart = (shape) => {
+  const handleDragStart = useCallback((shape) => {
     draggedShapeRef.current = shape;
     const colors = getColors(darkTheme);
     setPreviewColor(colors.shapes[shape.colorIndex]);
@@ -129,10 +129,10 @@ export default function App() {
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-  };
+  }, [darkTheme, hapticEnabled]);
 
   // Sürükleme devam ediyor
-  const handleDragMove = (blockX, blockY) => {
+  const handleDragMove = useCallback((blockX, blockY) => {
     const draggedShape = draggedShapeRef.current;
     
     if (!draggedShape) return;
@@ -181,7 +181,7 @@ export default function App() {
       setWillClearCells([]);
       lastValidPosition.current = null;
     }
-  };
+  }, [grid]);
 
   // Sürükleme bitti
   const handleDragEnd = () => {

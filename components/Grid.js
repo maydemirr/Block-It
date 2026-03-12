@@ -1,8 +1,8 @@
-import React, { forwardRef, useEffect, useRef } from 'react';
+import React, { forwardRef, useEffect, useRef, useCallback } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import { GRID_SIZE, CELL_SIZE, CELL_GAP, getColors } from '../constants/colors';
 
-const Cell = ({ cell, isHighlighted, willClear, shouldFade, colors, previewColor }) => {
+const Cell = React.memo(({ cell, isHighlighted, willClear, shouldFade, colors, previewColor }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -121,22 +121,22 @@ const Cell = ({ cell, isHighlighted, willClear, shouldFade, colors, previewColor
       ]}
     />
   );
-};
+});
 
 const Grid = forwardRef(({ grid, highlightCells = [], willClearCells = [], fadingCells = [], darkTheme = true, previewColor = '#00f5ff' }, ref) => {
   const colors = getColors(darkTheme);
   
-  const isHighlighted = (row, col) => {
+  const isHighlighted = useCallback((row, col) => {
     return highlightCells.some(cell => cell.row === row && cell.col === col);
-  };
+  }, [highlightCells]);
 
-  const willClear = (row, col) => {
+  const willClear = useCallback((row, col) => {
     return willClearCells.some(cell => cell.row === row && cell.col === col);
-  };
+  }, [willClearCells]);
 
-  const shouldFade = (row, col) => {
+  const shouldFade = useCallback((row, col) => {
     return fadingCells.some(cell => cell.row === row && cell.col === col);
-  };
+  }, [fadingCells]);
 
   return (
     <View ref={ref} style={[styles.container, { backgroundColor: colors.gridBackground }]} collapsable={false}>
