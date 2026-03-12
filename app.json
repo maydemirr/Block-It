@@ -13,7 +13,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.blockit"
+      "bundleIdentifier": "com.blockit.game",
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +23,8 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "package": "com.yourcompany.blockit"
+      "package": "com.blockit.game",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
