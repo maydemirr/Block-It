@@ -9,6 +9,7 @@ import ScoreBoard from './components/ScoreBoard';
 import GameOver from './components/GameOver';
 import MainMenu from './components/MainMenu';
 import ComboNotification from './components/ComboNotification';
+import AdBanner from './components/AdBanner';
 
 import { COLORS, LIGHT_COLORS, CELL_SIZE, CELL_GAP, getColors } from './constants/colors';
 import { getRandomShapes } from './utils/shapes';
@@ -46,6 +47,9 @@ export default function App() {
   const gridPosition = useRef({ x: 0, y: 0 });
   const draggedShapeRef = useRef(null);
   const lastValidPosition = useRef(null);
+  
+  // Oyun bitmeden önceki durumu kaydet (reklam izleyip devam etmek için)
+  const gameStateBeforeGameOver = useRef(null);
 
   // High score yükle
   useEffect(() => {
@@ -358,6 +362,14 @@ export default function App() {
 
   const checkGameOver = (currentGrid, currentShapes) => {
     if (!canPlaceAnyShape(currentGrid, currentShapes)) {
+      // Oyun bitmeden önceki durumu kaydet
+      gameStateBeforeGameOver.current = {
+        grid: currentGrid.map(row => [...row]), // Deep copy
+        shapes: currentShapes.map(s => ({ ...s })), // Deep copy
+        score: score,
+        combo: combo,
+      };
+      
       setGameOver(true);
       if (hapticEnabled) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -369,12 +381,36 @@ export default function App() {
     setGrid(createEmptyGrid());
     setShapes(getRandomShapes());
     setScore(0);
+    setCombo(0);
     setGameOver(false);
     setHighlightCells([]);
     draggedShapeRef.current = null;
     lastValidPosition.current = null;
+    gameStateBeforeGameOver.current = null;
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+  };
+  
+  const handleContinue = () => {
+    // Reklam izlendikten sonra oyun bitmeden önceki duruma dön
+    if (gameStateBeforeGameOver.current) {
+      const savedState = gameStateBeforeGameOver.current;
+      setGrid(savedState.grid);
+      setShapes(savedState.shapes);
+      setScore(savedState.score);
+      setCombo(savedState.combo);
+      setGameOver(false);
+      setHighlightCells([]);
+      draggedShapeRef.current = null;
+      lastValidPosition.current = null;
+      gameStateBeforeGameOver.current = null;
+      
+      if (hapticEnabled) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      
+      console.log('Game continued after watching ad');
     }
   };
 
@@ -452,8 +488,11 @@ export default function App() {
         score={score}
         highScore={highScore}
         onRestart={handleRestart}
+        onContinue={handleContinue}
         darkTheme={darkTheme}
       />
+      
+      <AdBanner />
     </SafeAreaView>
   );
 }

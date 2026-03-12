@@ -1,10 +1,67 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, ActivityIndicator } from 'react-native';
 import { getColors } from '../constants/colors';
+import { RewardedAd, RewardedAdEventType, TestIds } from 'react-native-google-mobile-ads';
 
-const GameOver = ({ visible, score, highScore, onRestart, darkTheme = true }) => {
+const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyy';
+
+const GameOver = ({ visible, score, highScore, onRestart, onContinue, darkTheme = true }) => {
+  const [rewardedAd, setRewardedAd] = useState(null);
+  const [adLoaded, setAdLoaded] = useState(false);
+  const [adLoading, setAdLoading] = useState(false);
   const isNewHighScore = score > highScore;
   const colors = getColors(darkTheme);
+
+  useEffect(() => {
+    if (visible && !rewardedAd) {
+      loadRewardedAd();
+    }
+  }, [visible]);
+
+  const loadRewardedAd = () => {
+    setAdLoading(true);
+    const rewarded = RewardedAd.createForAdRequest(adUnitId, {
+      requestNonPersonalizedAdsOnly: true,
+    });
+
+    const unsubscribeLoaded = rewarded.addAdEventListener(RewardedAdEventType.LOADED, () => {
+      setAdLoaded(true);
+      setAdLoading(false);
+      console.log('Rewarded ad loaded');
+    });
+
+    const unsubscribeEarned = rewarded.addAdEventListener(
+      RewardedAdEventType.EARNED_REWARD,
+      (reward) => {
+        console.log('User earned reward:', reward);
+        onContinue();
+      }
+    );
+
+    const unsubscribeClosed = rewarded.addAdEventListener(
+      RewardedAdEventType.CLOSED,
+      () => {
+        console.log('Rewarded ad closed');
+        setRewardedAd(null);
+        setAdLoaded(false);
+      }
+    );
+
+    rewarded.load();
+    setRewardedAd(rewarded);
+
+    return () => {
+      unsubscribeLoaded();
+      unsubscribeEarned();
+      unsubscribeClosed();
+    };
+  };
+
+  const showRewardedAd = () => {
+    if (adLoaded && rewardedAd) {
+      rewardedAd.show();
+    }
+  };
 
   return (
     <Modal
@@ -29,6 +86,23 @@ const GameOver = ({ visible, score, highScore, onRestart, darkTheme = true }) =>
             <Text style={[styles.label, { color: colors.textSecondary }]}>En Yüksek Skor</Text>
             <Text style={[styles.highScore, { color: colors.button }]}>{Math.max(score, highScore)}</Text>
           </View>
+          
+          {onContinue && (
+            <TouchableOpacity 
+              style={[styles.button, styles.continueButton, { opacity: adLoaded ? 1 : 0.5 }]} 
+              onPress={showRewardedAd}
+              disabled={!adLoaded}
+            >
+              {adLoading ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <>
+                  <Text style={styles.buttonText}>📺 REKLAM İZLE</Text>
+                  <Text style={styles.buttonSubtext}>Devam Et</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          )}
           
           <TouchableOpacity style={[styles.button, { backgroundColor: colors.button }]} onPress={onRestart}>
             <Text style={[styles.buttonText, { color: colors.buttonText }]}>YENİDEN BAŞLA</Text>
@@ -84,9 +158,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 20,
   },
+  continueButton: {
+    backgroundColor: '#4CAF50',
+  },
   buttonText: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  buttonSubtext: {
+    fontSize: 12,
+    color: '#FFFFFF',
+    marginTop: 4,
   },
 });
 
