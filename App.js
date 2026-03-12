@@ -213,6 +213,16 @@ export default function App() {
     
     console.log('Shape color index:', shapeColorIndex);
     
+    // Yerleştirilen bloğun hücrelerini kaydet
+    const placedCells = [];
+    draggedShape.pattern.forEach((patternRow, i) => {
+      patternRow.forEach((cell, j) => {
+        if (cell === 1) {
+          placedCells.push({ row: row + i, col: col + j });
+        }
+      });
+    });
+    
     let newGrid = placeShape(grid, draggedShape, row, col, shapeColorIndex);
     
     console.log('Shape placed, checking lines...');
@@ -221,16 +231,21 @@ export default function App() {
     const { newGrid: clearedGrid, clearedCount, clearedCells } = checkAndClearLines(newGrid);
     
     console.log('Lines cleared:', clearedCount);
+    console.log('Placed cells:', placedCells);
+    console.log('Cleared cells:', clearedCells);
     
     if (clearedCount > 0 && clearedCells && clearedCells.length > 0) {
-      // Fade animasyonunu başlat
+      // Önce grid'i güncelle (yerleştirilen blok görünsün)
+      setGrid(newGrid);
+      
+      // Fade animasyonunu başlat - tüm temizlenecek hücreleri kullan
       setFadingCells(clearedCells);
       
-      // Animasyon bitince grid'i güncelle
+      // Animasyon bitince temizlenmiş grid'i uygula
       setTimeout(() => {
         setFadingCells([]);
         
-        // Grid güncelle
+        // Grid'i temizlenmiş haliyle güncelle
         setGrid(clearedGrid);
         
         // Kombo hesapla: önceki combo + kırılan satır/sütun sayısı (max 10)

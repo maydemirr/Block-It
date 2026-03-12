@@ -49,40 +49,44 @@ export const placeShape = (grid, shape, row, col, colorIndex) => {
 
 // Tam satır ve sütunları kontrol et
 export const checkAndClearLines = (grid) => {
-  let newGrid = grid.map(row => [...row]);
   let clearedCount = 0;
   let clearedCells = [];
   
-  // Satırları kontrol et
+  // Önce satırları kontrol et (grid'i değiştirmeden)
   for (let i = 0; i < GRID_SIZE; i++) {
-    if (newGrid[i].every(cell => cell !== 0)) {
+    if (grid[i].every(cell => cell !== 0)) {
       for (let j = 0; j < GRID_SIZE; j++) {
         clearedCells.push({ row: i, col: j });
       }
-      newGrid[i] = Array(GRID_SIZE).fill(0);
       clearedCount++;
     }
   }
   
-  // Sütunları kontrol et
+  // Sonra sütunları kontrol et (grid'i değiştirmeden)
   for (let j = 0; j < GRID_SIZE; j++) {
     let columnFull = true;
     for (let i = 0; i < GRID_SIZE; i++) {
-      if (newGrid[i][j] === 0) {
+      if (grid[i][j] === 0) {
         columnFull = false;
         break;
       }
     }
     if (columnFull) {
       for (let i = 0; i < GRID_SIZE; i++) {
+        // Eğer bu hücre zaten eklenmemişse ekle
         if (!clearedCells.some(cell => cell.row === i && cell.col === j)) {
           clearedCells.push({ row: i, col: j });
         }
-        newGrid[i][j] = 0;
       }
       clearedCount++;
     }
   }
+  
+  // Şimdi temizlenecek hücreleri sıfırla
+  let newGrid = grid.map(row => [...row]);
+  clearedCells.forEach(cell => {
+    newGrid[cell.row][cell.col] = 0;
+  });
   
   return { newGrid, clearedCount, clearedCells };
 };
