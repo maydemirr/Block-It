@@ -84,7 +84,7 @@ const Cell = ({ cell, isHighlighted, willClear, shouldFade, colors, previewColor
   if (shouldFade && cell !== 0) {
     // Kırılma animasyonu - 6 parça
     return (
-      <View style={[styles.cell, { overflow: 'visible' }]}>
+      <View style={[styles.cell, { backgroundColor, overflow: 'visible' }]}>
         {particles.map((particle, index) => (
           <Animated.View
             key={index}
@@ -170,9 +170,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+    overflow: 'visible',
   },
   row: {
     flexDirection: 'row',
+    overflow: 'visible',
   },
   cell: {
     width: CELL_SIZE,
