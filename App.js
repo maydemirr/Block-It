@@ -393,11 +393,11 @@ export default function App() {
   };
   
   const handleContinue = () => {
-    // Reklam izlendikten sonra oyun bitmeden önceki duruma dön
+    // Reklam izlendikten sonra grid aynı kalsın ama yeni bloklar gelsin
     if (gameStateBeforeGameOver.current) {
       const savedState = gameStateBeforeGameOver.current;
       setGrid(savedState.grid);
-      setShapes(savedState.shapes);
+      setShapes(getRandomShapes()); // Yeni bloklar ver
       setScore(savedState.score);
       setCombo(savedState.combo);
       setGameOver(false);
@@ -410,7 +410,7 @@ export default function App() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
       
-      console.log('Game continued after watching ad');
+      console.log('Game continued with new shapes after watching ad');
     }
   };
 
