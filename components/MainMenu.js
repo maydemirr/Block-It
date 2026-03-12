@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Settings from './Settings';
 
 const BouncingLetter = ({ letter, color, delay = 0 }) => {
@@ -68,7 +69,23 @@ const RotatingGear = () => {
 
 const MainMenu = ({ onStartClassic, onResume, hasActiveGame, soundEnabled, setSoundEnabled, hapticEnabled, setHapticEnabled, darkTheme, setDarkTheme }) => {
   const [showSettings, setShowSettings] = useState(false);
+  const [highScore, setHighScore] = useState(0);
   const shakeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    loadHighScore();
+  }, []);
+
+  const loadHighScore = async () => {
+    try {
+      const saved = await AsyncStorage.getItem('@block_blast_high_score');
+      if (saved !== null) {
+        setHighScore(parseInt(saved, 10));
+      }
+    } catch (error) {
+      console.error('High score yüklenemedi:', error);
+    }
+  };
 
   useEffect(() => {
     const shake = () => {
@@ -92,6 +109,19 @@ const MainMenu = ({ onStartClassic, onResume, hasActiveGame, soundEnabled, setSo
       start={{ x: 0.5, y: 0 }}
       end={{ x: 0.5, y: 1 }}
     >
+      {/* High Score */}
+      <View style={styles.highScoreContainer}>
+        <LinearGradient
+          colors={['#FFD700', '#FFA500']}
+          style={styles.highScoreBox}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Text style={styles.crownIcon}>👑</Text>
+          <Text style={styles.highScoreText}>{highScore}</Text>
+        </LinearGradient>
+      </View>
+
       {/* Logo */}
       <View style={styles.logoContainer}>
         <View style={styles.logoRow}>
@@ -162,6 +192,37 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
+  },
+  highScoreContainer: {
+    position: 'absolute',
+    top: 50,
+    alignSelf: 'center',
+  },
+  highScoreBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+    borderWidth: 4,
+    borderColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  crownIcon: {
+    fontSize: 28,
+    marginRight: 8,
+  },
+  highScoreText: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   logoContainer: {
     marginBottom: 80,
