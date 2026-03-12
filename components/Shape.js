@@ -94,6 +94,14 @@ const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled
                 styles.cell,
                 cell === 1 && {
                   backgroundColor: colors.shapes[colorIndex],
+                  borderTopWidth: 3,
+                  borderLeftWidth: 3,
+                  borderRightWidth: 3,
+                  borderBottomWidth: 3,
+                  borderTopColor: 'rgba(255, 255, 255, 0.4)',
+                  borderLeftColor: 'rgba(255, 255, 255, 0.4)',
+                  borderRightColor: 'rgba(0, 0, 0, 0.3)',
+                  borderBottomColor: 'rgba(0, 0, 0, 0.3)',
                 },
                 cell === 0 && styles.emptyCell,
               ]}
@@ -116,12 +124,7 @@ const styles = StyleSheet.create({
     width: CELL_SIZE * 0.8,
     height: CELL_SIZE * 0.8,
     margin: CELL_GAP / 2,
-    borderRadius: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-    elevation: 5,
+    borderRadius: 4,
   },
   emptyCell: {
     backgroundColor: 'transparent',

@@ -84,7 +84,7 @@ const Cell = ({ cell, isHighlighted, willClear, shouldFade, colors, previewColor
   if (shouldFade && cell !== 0) {
     // Kırılma animasyonu - 6 parça
     return (
-      <View style={styles.cell}>
+      <View style={[styles.cell, { overflow: 'visible' }]}>
         {particles.map((particle, index) => (
           <Animated.View
             key={index}
@@ -111,6 +111,7 @@ const Cell = ({ cell, isHighlighted, willClear, shouldFade, colors, previewColor
       style={[
         styles.cell,
         { backgroundColor },
+        cell !== 0 && styles.cell3D,
         isHighlighted && { backgroundColor: previewColor, opacity: 0.6 },
         willClear && {
           borderWidth: 4,
@@ -177,18 +178,25 @@ const styles = StyleSheet.create({
     width: CELL_SIZE,
     height: CELL_SIZE,
     margin: CELL_GAP / 2,
-    borderRadius: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 3,
+    borderRadius: 4,
+  },
+  cell3D: {
+    borderTopWidth: 3,
+    borderLeftWidth: 3,
+    borderRightWidth: 3,
+    borderBottomWidth: 3,
+    borderTopColor: 'rgba(255, 255, 255, 0.4)',
+    borderLeftColor: 'rgba(255, 255, 255, 0.4)',
+    borderRightColor: 'rgba(0, 0, 0, 0.3)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.3)',
   },
   particle: {
     position: 'absolute',
     width: CELL_SIZE / 2,
     height: CELL_SIZE / 2,
     borderRadius: 3,
+    top: CELL_SIZE / 4,
+    left: CELL_SIZE / 4,
   },
 });
 
