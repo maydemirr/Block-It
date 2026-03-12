@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Block It",
+    "name": "Block It Puzzle",
     "slug": "block-it",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,8 +13,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.blockit.game",
-      "buildNumber": "1"
+      "bundleIdentifier": "com.maystudio.blockitpuzzle",
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +26,7 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "package": "com.blockit.game",
+      "package": "com.maystudio.blockitpuzzle",
       "versionCode": 1
     },
     "web": {
@@ -35,10 +38,15 @@
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "ca-app-pub-3940256099942544~3347511713",
-          "iosAppId": "ca-app-pub-3940256099942544~1458002511"
+          "androidAppId": "ca-app-pub-4835192274036818~3639431178",
+          "iosAppId": "ca-app-pub-4835192274036818~3639431178"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e0dc60a0-7d47-4dd9-93ec-e8b522f81aef"
+      }
+    }
   }
 }

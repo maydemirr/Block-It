@@ -1,10 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, ActivityIndicator, Platform } from 'react-native';
 import { getColors } from '../constants/colors';
-import { RewardedAd, RewardedAdEventType, TestIds, InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
 
-const rewardedAdUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyy';
-const interstitialAdUnitId = __DEV__ ? TestIds.INTERSTITIAL : 'ca-app-pub-xxxxxxxxxxxxx/zzzzzzzzzz';
+// AdMob sadece native build'de çalışır
+let RewardedAd, RewardedAdEventType, TestIds, InterstitialAd, AdEventType;
+const HAS_ADMOB = Platform.OS !== 'web';
+
+if (HAS_ADMOB) {
+  try {
+    const admob = require('react-native-google-mobile-ads');
+    RewardedAd = admob.RewardedAd;
+    RewardedAdEventType = admob.RewardedAdEventType;
+    TestIds = admob.TestIds;
+    InterstitialAd = admob.InterstitialAd;
+    AdEventType = admob.AdEventType;
+  } catch (e) {
+    console.log('AdMob not available');
+  }
+}
+
+const rewardedAdUnitId = __DEV__ && TestIds ? TestIds.REWARDED : 'ca-app-pub-4835192274036818/8452774155';
+const interstitialAdUnitId = __DEV__ && TestIds ? TestIds.INTERSTITIAL : 'ca-app-pub-4835192274036818/4154436498';
 
 const GameOver = ({ visible, score, highScore, onRestart, onContinue, continueCount = 0, darkTheme = true }) => {
   const [rewardedAd, setRewardedAd] = useState(null);
@@ -16,7 +32,7 @@ const GameOver = ({ visible, score, highScore, onRestart, onContinue, continueCo
   const canContinue = continueCount < 2; // En fazla 2 kere devam edebilir
 
   useEffect(() => {
-    if (visible) {
+    if (visible && HAS_ADMOB && RewardedAd) {
       if (canContinue && !rewardedAd) {
         // İlk 2 oyun bitişinde rewarded ad yükle
         loadRewardedAd();
@@ -28,73 +44,112 @@ const GameOver = ({ visible, score, highScore, onRestart, onContinue, continueCo
   }, [visible, canContinue]);
 
   const loadRewardedAd = () => {
-    setAdLoading(true);
-    const rewarded = RewardedAd.createForAdRequest(rewardedAdUnitId, {
-      requestNonPersonalizedAdsOnly: true,
-    });
+    if (!HAS_ADMOB || !RewardedAd) return;
+    
+    try {
+      setAdLoading(true);
+      const rewarded = RewardedAd.createForAdRequest(rewardedAdUnitId, {
+        requestNonPersonalizedAdsOnly: true,
+      });
 
-    const unsubscribeLoaded = rewarded.addAdEventListener(RewardedAdEventType.LOADED, () => {
-      setAdLoaded(true);
-      setAdLoading(false);
-      console.log('Rewarded ad loaded');
-    });
+      const unsubscribeLoaded = rewarded.addAdEventListener(RewardedAdEventType.LOADED, () => {
+        setAdLoaded(true);
+        setAdLoading(false);
+        console.log('Rewarded ad loaded');
+      });
 
-    const unsubscribeEarned = rewarded.addAdEventListener(
-      RewardedAdEventType.EARNED_REWARD,
-      (reward) => {
-        console.log('User earned reward:', reward);
-        if (onContinue) {
-          onContinue();
+      const unsubscribeEarned = rewarded.addAdEventListener(
+        RewardedAdEventType.EARNED_REWARD,
+        (reward) => {
+          console.log('User earned reward:', reward);
+          if (onContinue) {
+            onContinue();
+          }
         }
-      }
-    );
+      );
 
-    const unsubscribeClosed = rewarded.addAdEventListener(
-      RewardedAdEventType.CLOSED,
-      () => {
-        console.log('Rewarded ad closed');
-        setRewardedAd(null);
-        setAdLoaded(false);
-      }
-    );
+      const unsubscribeClosed = rewarded.addAdEventListener(
+        RewardedAdEventType.CLOSED,
+        () => {
+          console.log('Rewarded ad closed');
+          setRewardedAd(null);
+          setAdLoaded(false);
+        }
+      );
+      
+      const unsubscribeError = rewarded.addAdEventListener(
+        RewardedAdEventType.ERROR,
+        (error) => {
+          console.error('Rewarded ad error:', error);
+          setAdLoading(false);
+          setAdLoaded(false);
+        }
+      );
 
-    rewarded.load();
-    setRewardedAd(rewarded);
+      rewarded.load();
+      setRewardedAd(rewarded);
 
-    return () => {
-      unsubscribeLoaded();
-      unsubscribeEarned();
-      unsubscribeClosed();
-    };
+      return () => {
+        unsubscribeLoaded();
+        unsubscribeEarned();
+        unsubscribeClosed();
+        unsubscribeError();
+      };
+    } catch (error) {
+      console.error('Error loading rewarded ad:', error);
+      setAdLoading(false);
+      setAdLoaded(false);
+    }
   };
 
   const loadAndShowInterstitialAd = () => {
-    const interstitial = InterstitialAd.createForAdRequest(interstitialAdUnitId, {
-      requestNonPersonalizedAdsOnly: true,
-    });
+    if (!HAS_ADMOB || !InterstitialAd) return;
+    
+    try {
+      const interstitial = InterstitialAd.createForAdRequest(interstitialAdUnitId, {
+        requestNonPersonalizedAdsOnly: true,
+      });
 
-    const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
-      console.log('Interstitial ad loaded, showing...');
-      interstitial.show();
-    });
+      const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
+        console.log('Interstitial ad loaded, showing...');
+        try {
+          interstitial.show();
+        } catch (error) {
+          console.error('Error showing interstitial:', error);
+        }
+      });
 
-    const unsubscribeClosed = interstitial.addAdEventListener(AdEventType.CLOSED, () => {
-      console.log('Interstitial ad closed');
-      setInterstitialAd(null);
-    });
+      const unsubscribeClosed = interstitial.addAdEventListener(AdEventType.CLOSED, () => {
+        console.log('Interstitial ad closed');
+        setInterstitialAd(null);
+      });
+      
+      const unsubscribeError = interstitial.addAdEventListener(AdEventType.ERROR, (error) => {
+        console.error('Interstitial ad error:', error);
+        setInterstitialAd(null);
+      });
 
-    interstitial.load();
-    setInterstitialAd(interstitial);
+      interstitial.load();
+      setInterstitialAd(interstitial);
 
-    return () => {
-      unsubscribeLoaded();
-      unsubscribeClosed();
-    };
+      return () => {
+        unsubscribeLoaded();
+        unsubscribeClosed();
+        unsubscribeError();
+      };
+    } catch (error) {
+      console.error('Error loading interstitial ad:', error);
+    }
   };
 
   const showRewardedAd = () => {
     if (adLoaded && rewardedAd) {
-      rewardedAd.show();
+      try {
+        rewardedAd.show();
+      } catch (error) {
+        console.error('Error showing rewarded ad:', error);
+        setAdLoaded(false);
+      }
     }
   };
 

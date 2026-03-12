@@ -11,6 +11,8 @@ import MainMenu from './components/MainMenu';
 import ComboNotification from './components/ComboNotification';
 import AdBanner from './components/AdBanner';
 
+const USE_ADS = true; // AdMob aktif
+
 import { COLORS, LIGHT_COLORS, CELL_SIZE, CELL_GAP, getColors } from './constants/colors';
 import { getRandomShapes, getPlaceableShapes } from './utils/shapes';
 import {
@@ -22,8 +24,8 @@ import {
   calculateScore,
 } from './utils/gameLogic';
 
-const STORAGE_KEY = '@block_blast_high_score';
-const SETTINGS_KEY = '@block_blast_settings';
+const STORAGE_KEY = '@block_it_high_score';
+const SETTINGS_KEY = '@block_it_settings';
 
 export default function App() {
   const [gameMode, setGameMode] = useState(null); // null, 'classic'
@@ -190,25 +192,26 @@ export default function App() {
 
   // Sürükleme bitti
   const handleDragEnd = () => {
-    const draggedShape = draggedShapeRef.current;
-    const validPosition = lastValidPosition.current;
-    
-    console.log('handleDragEnd:', { 
-      hasDraggedShape: !!draggedShape, 
-      hasValidPosition: !!validPosition,
-      validPosition: validPosition
-    });
-    
-    if (!draggedShape || !validPosition) {
-      console.log('Cannot place - no shape or no valid position');
-      draggedShapeRef.current = null;
-      lastValidPosition.current = null;
-      setHighlightCells([]);
-      if (hapticEnabled) {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    try {
+      const draggedShape = draggedShapeRef.current;
+      const validPosition = lastValidPosition.current;
+      
+      console.log('handleDragEnd:', { 
+        hasDraggedShape: !!draggedShape, 
+        hasValidPosition: !!validPosition,
+        validPosition: validPosition
+      });
+      
+      if (!draggedShape || !validPosition) {
+        console.log('Cannot place - no shape or no valid position');
+        draggedShapeRef.current = null;
+        lastValidPosition.current = null;
+        setHighlightCells([]);
+        if (hapticEnabled) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        }
+        return;
       }
-      return;
-    }
 
     console.log('Placing shape at:', validPosition);
 
@@ -359,6 +362,14 @@ export default function App() {
     setWillClearCells([]);
     
     console.log('handleDragEnd complete');
+    } catch (error) {
+      console.error('Error in handleDragEnd:', error);
+      // Hata durumunda temizlik yap
+      draggedShapeRef.current = null;
+      lastValidPosition.current = null;
+      setHighlightCells([]);
+      setWillClearCells([]);
+    }
   };
 
   const checkGameOver = (currentGrid, currentShapes) => {
@@ -491,12 +502,12 @@ export default function App() {
         score={score}
         highScore={highScore}
         onRestart={handleRestart}
-        onContinue={continueCount < 2 ? handleContinue : null}
+        onContinue={USE_ADS && continueCount < 2 ? handleContinue : null}
         continueCount={continueCount}
         darkTheme={darkTheme}
       />
       
-      <AdBanner />
+      {USE_ADS && <AdBanner />}
     </SafeAreaView>
   );
 }

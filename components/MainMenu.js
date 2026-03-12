@@ -78,7 +78,7 @@ const MainMenu = ({ onStartClassic, onResume, hasActiveGame, soundEnabled, setSo
 
   const loadHighScore = async () => {
     try {
-      const saved = await AsyncStorage.getItem('@block_blast_high_score');
+      const saved = await AsyncStorage.getItem('@block_it_high_score');
       if (saved !== null) {
         setHighScore(parseInt(saved, 10));
       }
@@ -134,6 +134,7 @@ const MainMenu = ({ onStartClassic, onResume, hasActiveGame, soundEnabled, setSo
           <BouncingLetter letter="I" color="#FFD700" delay={500} />
           <BouncingLetter letter="T" color="#FFA500" delay={600} />
         </View>
+        <Text style={styles.subtitleText}>PUZZLE</Text>
       </View>
 
       {/* Play Button */}
@@ -238,6 +239,16 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 4 },
     textShadowRadius: 8,
+  },
+  subtitleText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FF6B35',
+    letterSpacing: 8,
+    marginTop: 10,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   playButton: {
     width: 280,
