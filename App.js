@@ -42,6 +42,7 @@ export default function App() {
   const [hapticEnabled, setHapticEnabled] = useState(true);
   const [darkTheme, setDarkTheme] = useState(true);
   const [previewColor, setPreviewColor] = useState('#00f5ff');
+  const [continueCount, setContinueCount] = useState(0); // Kaç kere devam etti
   
   const gridRef = useRef(null);
   const gridPosition = useRef({ x: 0, y: 0 });
@@ -384,6 +385,7 @@ export default function App() {
     setCombo(0);
     setGameOver(false);
     setHighlightCells([]);
+    setContinueCount(0); // Yeni oyun başladığında sıfırla
     draggedShapeRef.current = null;
     lastValidPosition.current = null;
     gameStateBeforeGameOver.current = null;
@@ -402,6 +404,7 @@ export default function App() {
       setCombo(savedState.combo);
       setGameOver(false);
       setHighlightCells([]);
+      setContinueCount(continueCount + 1); // Devam sayısını artır
       draggedShapeRef.current = null;
       lastValidPosition.current = null;
       gameStateBeforeGameOver.current = null;
@@ -410,7 +413,7 @@ export default function App() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
       
-      console.log('Game continued with placeable shapes after watching ad');
+      console.log('Game continued with placeable shapes after watching ad. Continue count:', continueCount + 1);
     }
   };
 
@@ -488,7 +491,8 @@ export default function App() {
         score={score}
         highScore={highScore}
         onRestart={handleRestart}
-        onContinue={handleContinue}
+        onContinue={continueCount < 2 ? handleContinue : null}
+        continueCount={continueCount}
         darkTheme={darkTheme}
       />
       

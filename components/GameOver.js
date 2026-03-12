@@ -1,26 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, ActivityIndicator } from 'react-native';
 import { getColors } from '../constants/colors';
-import { RewardedAd, RewardedAdEventType, TestIds } from 'react-native-google-mobile-ads';
+import { RewardedAd, RewardedAdEventType, TestIds, InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
 
-const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyy';
+const rewardedAdUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyy';
+const interstitialAdUnitId = __DEV__ ? TestIds.INTERSTITIAL : 'ca-app-pub-xxxxxxxxxxxxx/zzzzzzzzzz';
 
-const GameOver = ({ visible, score, highScore, onRestart, onContinue, darkTheme = true }) => {
+const GameOver = ({ visible, score, highScore, onRestart, onContinue, continueCount = 0, darkTheme = true }) => {
   const [rewardedAd, setRewardedAd] = useState(null);
+  const [interstitialAd, setInterstitialAd] = useState(null);
   const [adLoaded, setAdLoaded] = useState(false);
   const [adLoading, setAdLoading] = useState(false);
   const isNewHighScore = score > highScore;
   const colors = getColors(darkTheme);
+  const canContinue = continueCount < 2; // En fazla 2 kere devam edebilir
 
   useEffect(() => {
-    if (visible && !rewardedAd) {
-      loadRewardedAd();
+    if (visible) {
+      if (canContinue && !rewardedAd) {
+        // İlk 2 oyun bitişinde rewarded ad yükle
+        loadRewardedAd();
+      } else if (!canContinue && !interstitialAd) {
+        // 3. oyun bitişinde interstitial ad yükle ve göster
+        loadAndShowInterstitialAd();
+      }
     }
-  }, [visible]);
+  }, [visible, canContinue]);
 
   const loadRewardedAd = () => {
     setAdLoading(true);
-    const rewarded = RewardedAd.createForAdRequest(adUnitId, {
+    const rewarded = RewardedAd.createForAdRequest(rewardedAdUnitId, {
       requestNonPersonalizedAdsOnly: true,
     });
 
@@ -34,7 +43,9 @@ const GameOver = ({ visible, score, highScore, onRestart, onContinue, darkTheme 
       RewardedAdEventType.EARNED_REWARD,
       (reward) => {
         console.log('User earned reward:', reward);
-        onContinue();
+        if (onContinue) {
+          onContinue();
+        }
       }
     );
 
@@ -53,6 +64,30 @@ const GameOver = ({ visible, score, highScore, onRestart, onContinue, darkTheme 
     return () => {
       unsubscribeLoaded();
       unsubscribeEarned();
+      unsubscribeClosed();
+    };
+  };
+
+  const loadAndShowInterstitialAd = () => {
+    const interstitial = InterstitialAd.createForAdRequest(interstitialAdUnitId, {
+      requestNonPersonalizedAdsOnly: true,
+    });
+
+    const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
+      console.log('Interstitial ad loaded, showing...');
+      interstitial.show();
+    });
+
+    const unsubscribeClosed = interstitial.addAdEventListener(AdEventType.CLOSED, () => {
+      console.log('Interstitial ad closed');
+      setInterstitialAd(null);
+    });
+
+    interstitial.load();
+    setInterstitialAd(interstitial);
+
+    return () => {
+      unsubscribeLoaded();
       unsubscribeClosed();
     };
   };
@@ -87,21 +122,23 @@ const GameOver = ({ visible, score, highScore, onRestart, onContinue, darkTheme 
             <Text style={[styles.highScore, { color: colors.button }]}>{Math.max(score, highScore)}</Text>
           </View>
           
-          {onContinue && (
-            <TouchableOpacity 
-              style={[styles.button, styles.continueButton, { opacity: adLoaded ? 1 : 0.5 }]} 
-              onPress={showRewardedAd}
-              disabled={!adLoaded}
-            >
-              {adLoading ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
-                <>
-                  <Text style={styles.buttonText}>📺 REKLAM İZLE</Text>
-                  <Text style={styles.buttonSubtext}>Devam Et</Text>
-                </>
-              )}
-            </TouchableOpacity>
+          {onContinue && canContinue && (
+            <>
+              <TouchableOpacity 
+                style={[styles.button, styles.continueButton, { opacity: adLoaded ? 1 : 0.5 }]} 
+                onPress={showRewardedAd}
+                disabled={!adLoaded}
+              >
+                {adLoading ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Text style={styles.buttonText}>📺 REKLAM İZLE</Text>
+                    <Text style={styles.buttonSubtext}>Devam Et ({2 - continueCount} hak kaldı)</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </>
           )}
           
           <TouchableOpacity style={[styles.button, { backgroundColor: colors.button }]} onPress={onRestart}>
