@@ -49,3 +49,40 @@ export const getRandomShapes = () => {
     colorIndex: index, // Sabit renk indexi
   }));
 };
+
+// Grid'e yerleştirilebilecek şekiller üret (en az 1 tane yerleştirilebilir olmalı)
+export const getPlaceableShapes = (grid, canPlaceShapeFunc) => {
+  const maxAttempts = 50; // Sonsuz döngüyü önlemek için
+  let attempts = 0;
+  
+  while (attempts < maxAttempts) {
+    const shapes = getRandomShapes();
+    
+    // En az bir şeklin yerleştirilebilir olup olmadığını kontrol et
+    const hasPlaceableShape = shapes.some(shape => {
+      // Grid'in her pozisyonunu dene
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          if (canPlaceShapeFunc(grid, shape, row, col)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    });
+    
+    if (hasPlaceableShape) {
+      return shapes;
+    }
+    
+    attempts++;
+  }
+  
+  // Eğer hiç uygun şekil bulunamazsa, en küçük şekilleri ver (tek kare, 2x1, 1x2)
+  const smallShapes = [SHAPES[0], SHAPES[1], SHAPES[2]]; // id: 1, 2, 3
+  return smallShapes.map((shape, index) => ({
+    ...shape,
+    uniqueId: `${shape.id}-${Date.now()}-${index}`,
+    colorIndex: index,
+  }));
+};

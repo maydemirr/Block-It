@@ -12,7 +12,7 @@ import ComboNotification from './components/ComboNotification';
 import AdBanner from './components/AdBanner';
 
 import { COLORS, LIGHT_COLORS, CELL_SIZE, CELL_GAP, getColors } from './constants/colors';
-import { getRandomShapes } from './utils/shapes';
+import { getRandomShapes, getPlaceableShapes } from './utils/shapes';
 import {
   createEmptyGrid,
   canPlaceShape,
@@ -393,11 +393,11 @@ export default function App() {
   };
   
   const handleContinue = () => {
-    // Reklam izlendikten sonra grid aynı kalsın ama yeni bloklar gelsin
+    // Reklam izlendikten sonra grid aynı kalsın ama yerleştirilebilecek yeni bloklar gelsin
     if (gameStateBeforeGameOver.current) {
       const savedState = gameStateBeforeGameOver.current;
       setGrid(savedState.grid);
-      setShapes(getRandomShapes()); // Yeni bloklar ver
+      setShapes(getPlaceableShapes(savedState.grid, canPlaceShape)); // Grid'e yerleştirilebilecek bloklar ver
       setScore(savedState.score);
       setCombo(savedState.combo);
       setGameOver(false);
@@ -410,7 +410,7 @@ export default function App() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
       
-      console.log('Game continued with new shapes after watching ad');
+      console.log('Game continued with placeable shapes after watching ad');
     }
   };
 
