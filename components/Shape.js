@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet, PanResponder, Animated } from 'react-native';
+import { View, StyleSheet, PanResponder, Animated, Platform } from 'react-native';
 import { CELL_SIZE, CELL_GAP, getColors } from '../constants/colors';
 
 const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled, darkTheme = true }) => {
@@ -37,10 +37,18 @@ const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled
           });
         }
         
-        Animated.spring(scale, {
-          toValue: 1.2,
-          useNativeDriver: true,
-        }).start();
+        // Android'de opacity'yi düşürme, sadece scale yap
+        if (Platform.OS === 'android') {
+          Animated.spring(scale, {
+            toValue: 1.2,
+            useNativeDriver: true,
+          }).start();
+        } else {
+          Animated.spring(scale, {
+            toValue: 1.2,
+            useNativeDriver: true,
+          }).start();
+        }
         onDragStart(shape);
       },
       onPanResponderMove: (e, gestureState) => {
@@ -72,6 +80,8 @@ const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled
       ref={shapeRef}
       {...panResponder.panHandlers}
       collapsable={false}
+      renderToHardwareTextureAndroid={true}
+      needsOffscreenAlphaCompositing={Platform.OS === 'android'}
       style={[
         styles.container,
         {
@@ -80,7 +90,11 @@ const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled
             { translateY: pan.y },
             { scale: scale },
           ],
-          opacity: opacity,
+          // Android'de opacity animasyonunu kaldır
+          ...(Platform.OS === 'android' ? {} : { opacity: opacity }),
+          // Sürüklerken en üstte olsun
+          zIndex: 9999,
+          elevation: 9999,
         },
         disabled && styles.disabled,
       ]}
@@ -116,6 +130,10 @@ const Shape = ({ shape, colorIndex, onDragStart, onDragMove, onDragEnd, disabled
 const styles = StyleSheet.create({
   container: {
     padding: 5,
+    ...(Platform.OS === 'android' && {
+      elevation: 5,
+      zIndex: 1000,
+    }),
   },
   row: {
     flexDirection: 'row',

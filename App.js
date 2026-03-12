@@ -525,5 +525,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingHorizontal: 20,
     paddingVertical: 30,
+    zIndex: 1000,
+    elevation: 1000,
   },
 });
