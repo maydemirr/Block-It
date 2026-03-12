@@ -5,6 +5,7 @@ import { GRID_SIZE, CELL_SIZE, CELL_GAP, getColors } from '../constants/colors';
 const Cell = ({ cell, isHighlighted, willClear, shouldFade, colors, previewColor }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
   const particles = useRef([
     new Animated.ValueXY({ x: 0, y: 0 }),
     new Animated.ValueXY({ x: 0, y: 0 }),
@@ -56,6 +57,28 @@ const Cell = ({ cell, isHighlighted, willClear, shouldFade, colors, previewColor
     }
   }, [shouldFade]);
 
+  // WillClear için yanıp sönen animasyon
+  useEffect(() => {
+    if (willClear) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.15,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      pulseAnim.setValue(1);
+    }
+  }, [willClear]);
+
   const backgroundColor = cell !== 0 ? colors.shapes[cell - 1] : colors.cell;
 
   if (shouldFade && cell !== 0) {
@@ -89,7 +112,11 @@ const Cell = ({ cell, isHighlighted, willClear, shouldFade, colors, previewColor
         styles.cell,
         { backgroundColor },
         isHighlighted && { backgroundColor: previewColor, opacity: 0.6 },
-        willClear && styles.willClear,
+        willClear && {
+          borderWidth: 4,
+          borderColor: '#FFD700',
+          transform: [{ scale: pulseAnim }],
+        },
       ]}
     />
   );
@@ -162,10 +189,6 @@ const styles = StyleSheet.create({
     width: CELL_SIZE / 2,
     height: CELL_SIZE / 2,
     borderRadius: 3,
-  },
-  willClear: {
-    borderWidth: 3,
-    borderColor: '#ff6b9d',
   },
 });
 
