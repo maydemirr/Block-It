@@ -1,47 +1,145 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
-import { getColors } from '../constants/colors';
+import { LinearGradient } from 'expo-linear-gradient';
 import Settings from './Settings';
+
+const BouncingLetter = ({ letter, color, delay = 0 }) => {
+  const bounceAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.delay(delay),
+        Animated.timing(bounceAnim, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bounceAnim, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  const translateX = bounceAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-8, 8],
+  });
+
+  return (
+    <Animated.Text
+      style={[
+        styles.logoLetter,
+        { color, transform: [{ translateX }] }
+      ]}
+    >
+      {letter}
+    </Animated.Text>
+  );
+};
+
+const RotatingGear = () => {
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, []);
+
+  const rotate = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  return (
+    <Animated.Text style={[styles.iconButtonText, { transform: [{ rotate }] }]}>
+      ⚙️
+    </Animated.Text>
+  );
+};
 
 const MainMenu = ({ onStartClassic, onResume, hasActiveGame, soundEnabled, setSoundEnabled, hapticEnabled, setHapticEnabled, darkTheme, setDarkTheme }) => {
   const [showSettings, setShowSettings] = useState(false);
-  const colors = getColors(darkTheme);
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const shake = () => {
+      Animated.sequence([
+        Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
+      ]).start();
+    };
+
+    const interval = setInterval(shake, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <LinearGradient
+      colors={['#87CEEB', '#FFFFFF', '#FFE4B5']}
+      style={styles.container}
+      start={{ x: 0.5, y: 0 }}
+      end={{ x: 0.5, y: 1 }}
+    >
+      {/* Logo */}
+      <View style={styles.logoContainer}>
+        <View style={styles.logoRow}>
+          <BouncingLetter letter="B" color="#FFD700" delay={0} />
+          <BouncingLetter letter="L" color="#FF69B4" delay={100} />
+          <BouncingLetter letter="O" color="#FF69B4" delay={200} />
+          <BouncingLetter letter="C" color="#87CEEB" delay={300} />
+          <BouncingLetter letter="K" color="#90EE90" delay={400} />
+          <Text style={[styles.logoLetter, { color: '#FFFFFF', marginHorizontal: 8 }]}> </Text>
+          <BouncingLetter letter="I" color="#FFD700" delay={500} />
+          <BouncingLetter letter="T" color="#FFA500" delay={600} />
+        </View>
+      </View>
+
+      {/* Play Button */}
       <TouchableOpacity 
-        style={[styles.settingsButton, { backgroundColor: colors.gridBackground }]} 
-        onPress={() => setShowSettings(true)}
-        activeOpacity={0.8}
+        style={styles.playButton}
+        onPress={hasActiveGame ? onResume : onStartClassic}
+        activeOpacity={0.9}
       >
-        <Text style={styles.settingsIcon}>⚙️</Text>
+        <LinearGradient
+          colors={['#FFD700', '#FFA500']}
+          style={styles.playButtonGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+        >
+          <Animated.Text style={[styles.playButtonText, { transform: [{ translateX: shakeAnim }] }]}>
+            PLAY
+          </Animated.Text>
+        </LinearGradient>
       </TouchableOpacity>
 
-      <View style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]}>Block It</Text>
-        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Puzzle Oyunu</Text>
-        
-        <View style={styles.buttonsContainer}>
-          {hasActiveGame && (
-            <TouchableOpacity 
-              style={[styles.button, styles.resumeButton]} 
-              onPress={onResume}
-              activeOpacity={0.8}
-            >
-              <Text style={[styles.buttonText, { color: colors.buttonText }]}>Devam Et</Text>
-              <Text style={[styles.buttonSubtext, { color: colors.buttonText }]}>Oyuna geri dön</Text>
-            </TouchableOpacity>
-          )}
-          
-          <TouchableOpacity 
-            style={[styles.button, { backgroundColor: colors.button }]} 
-            onPress={onStartClassic}
-            activeOpacity={0.8}
+      {/* Bottom Buttons */}
+      <View style={styles.bottomButtons}>
+        <TouchableOpacity 
+          style={styles.iconButton}
+          onPress={() => setShowSettings(true)}
+          activeOpacity={0.9}
+        >
+          <LinearGradient
+            colors={['#90EE90', '#32CD32']}
+            style={styles.iconButtonGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
           >
-            <Text style={[styles.buttonText, { color: colors.buttonText }]}>Oyunu Başlat</Text>
-            <Text style={[styles.buttonSubtext, { color: colors.buttonText }]}>Klasik mod</Text>
-          </TouchableOpacity>
-        </View>
+            <RotatingGear />
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
 
       <Settings
@@ -54,7 +152,7 @@ const MainMenu = ({ onStartClassic, onResume, hasActiveGame, soundEnabled, setSo
         darkTheme={darkTheme}
         setDarkTheme={setDarkTheme}
       />
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -63,66 +161,72 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 20,
   },
-  settingsButton: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  logoContainer: {
+    marginBottom: 80,
+    alignItems: 'center',
+  },
+  logoRow: {
+    flexDirection: 'row',
+  },
+  logoLetter: {
+    fontSize: 64,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 4 },
+    textShadowRadius: 8,
+  },
+  playButton: {
+    width: 280,
+    height: 100,
+    marginBottom: 60,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  playButtonGradient: {
+    flex: 1,
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    borderWidth: 5,
+    borderColor: '#FFFFFF',
   },
-  settingsIcon: {
-    fontSize: 28,
-  },
-  content: {
-    alignItems: 'center',
-    width: '100%',
-    paddingHorizontal: 30,
-  },
-  title: {
-    fontSize: 56,
+  playButtonText: {
+    fontSize: 48,
     fontWeight: 'bold',
-    marginBottom: 10,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
-  subtitle: {
-    fontSize: 20,
-    marginBottom: 60,
+  bottomButtons: {
+    flexDirection: 'row',
+    gap: 30,
   },
-  buttonsContainer: {
-    width: '100%',
-    gap: 20,
-  },
-  button: {
-    width: '100%',
-    paddingVertical: 20,
-    paddingHorizontal: 30,
-    borderRadius: 16,
-    alignItems: 'center',
+  iconButton: {
+    width: 90,
+    height: 90,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 5,
+    elevation: 8,
   },
-  resumeButton: {
-    backgroundColor: '#00d9ff',
+  iconButtonGradient: {
+    flex: 1,
+    borderRadius: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 4,
+    borderColor: '#FFFFFF',
   },
-  buttonText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  buttonSubtext: {
-    fontSize: 14,
-    opacity: 0.8,
+  iconButtonText: {
+    fontSize: 40,
   },
 });
 
